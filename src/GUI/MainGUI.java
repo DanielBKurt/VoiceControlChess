@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
-import java.awt.EventQueue;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -38,7 +37,7 @@ public class MainGUI implements Runnable {
             currentGame = game;
             try
             {
-                Thread.sleep(500); //without delay, mic registers mouse click as command
+                Thread.sleep(400); //without delay, mic registers mouse click as command
             }
             catch(InterruptedException ex)
             {
@@ -96,6 +95,7 @@ public class MainGUI implements Runnable {
         mainGUI.setIconImage(new ImageIcon(Tag.LAZY_ICON).getImage());
         mainGUI.setSize(Tag.IMAGE_WIDTH * 8, Tag.IMAGE_HEIGHT * 8);
         mainGUI.setResizable(false);
+        mainGUI.setLocationRelativeTo(null);
     }
 
     private void createBoxComponents() {
@@ -154,7 +154,7 @@ public class MainGUI implements Runnable {
 
     private void playItemActionPerformed(ActionEvent e) {
         System.out.println("Creating new game");
-        new GameGUI(new MainCalls());
+        new GameGUI(new MainCalls(), whitePlayerTextField.getText(), blackPlayerTextField.getText());
         mainGUI.setVisible(false);
     }
 

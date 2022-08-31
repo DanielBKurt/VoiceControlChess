@@ -33,6 +33,7 @@ public class Board extends JPanel implements MouseListener {
     private int selectedY;
     private Piece selectedPiece;
     private Piece enPassantPawn;
+    private Piece promotionPiece;
     public ArrayList<Position> selectedMovablePositions;
     
     public Board(GameGUI gui) {
@@ -45,6 +46,7 @@ public class Board extends JPanel implements MouseListener {
         this.setPanelDimensions(FRA_DIMENSION);
         this.setTurn(Color.WHITE);
         enPassantPawn = null;
+        promotionPiece = null;
     }
 
     /***
@@ -55,10 +57,10 @@ public class Board extends JPanel implements MouseListener {
         for(int i = 0; i < Tag.SIZE_MAX; i++) {
             for(int j = 0; j < Tag.SIZE_MAX; j++){
                 if(((i % 2) == 0 && (j % 2) == 0) || ((i % 2) == 1 && (j % 2) == 1)) {
-                    this.gameBoard[i][j] = new Position(j, i, false);
+                    this.gameBoard[i][j] = new Position(j, i, false, false);
                     this.add(gameBoard[i][j]);
                 } else {
-                    this.gameBoard[i][j] = new Position(j, i, true);
+                    this.gameBoard[i][j] = new Position(j, i, true, false);
                     this.add(gameBoard[i][j]);
                 }
             }
@@ -93,7 +95,7 @@ public class Board extends JPanel implements MouseListener {
             gameBoard[6][i].setPiece(new Pawn(Tag.Color.WHITE, gameBoard[6][i], Tag.WHITE_PAWN));
         }
     }
-
+    
     private void setPanelDimensions(Dimension size){
         this.setPreferredSize(size);
         this.setMaximumSize(size);
@@ -111,7 +113,10 @@ public class Board extends JPanel implements MouseListener {
     public void setSelectedMovablePositions(Piece piece) { this.selectedMovablePositions = piece.getLegalMoves(this.gameBoard); }
     public void nextTurn() 
     { 
-        turn = (this.turn == Color.BLACK) ? Color.WHITE : Color.BLACK;
+        if (turn == Color.OVER)
+            return;
+        else
+            turn = (this.turn == Color.BLACK) ? Color.WHITE : Color.BLACK;
         if (enPassantPawn != null && enPassantPawn.getSide() == this.turn) //en Passant is valid for only one move
             clearEnPassant(); //en passant for white pawn no longer valid once black moves
     }
@@ -180,6 +185,52 @@ public class Board extends JPanel implements MouseListener {
         int x = piece.getPosition().getPosX();
         gameBoard[y][x].setEnPassant(true);
         enPassantPawn = piece;
+    }
+
+    public void promote(String name)
+    {
+        if (promotionPiece != null)
+        {
+            Tag.Color color = promotionPiece.getSide();
+            Position temp = promotionPiece.getPosition();
+            temp.removePiece();
+            promotionPiece = null;
+            if (name.equals("(Q)"))
+            {
+                if (color == Tag.Color.BLACK)
+                    temp.setPiece(new Queen(color, temp, Tag.BLACK_QUEEN));
+                else
+                    temp.setPiece(new Queen(color, temp, Tag.WHITE_QUEEN));
+            }
+            else if (name.equals("(R)"))
+            {
+                if (color == Tag.Color.BLACK)
+                    temp.setPiece(new Rook(color, temp, Tag.BLACK_ROOK));
+                else
+                    temp.setPiece(new Rook(color, temp, Tag.WHITE_ROOK));
+            }
+            else if (name.equals("(B)"))
+            {
+                if (color == Tag.Color.BLACK)
+                    temp.setPiece(new Bishop(color, temp, Tag.BLACK_BISHOP));
+                else
+                    temp.setPiece(new Bishop(color, temp, Tag.WHITE_BISHOP));
+            }
+            else
+            {
+                if (color == Tag.Color.BLACK)
+                    temp.setPiece(new Knight(color, temp, Tag.BLACK_KNIGHT));
+                else
+                    temp.setPiece(new Knight(color, temp, Tag.WHITE_KNIGHT));
+            }
+            turn = (color == Tag.Color.WHITE) ? Tag.Color.BLACK : Tag.Color.WHITE;
+            repaint();
+        }
+        else
+            System.out.println("null");
+        deselectPiece();
+        promotionPiece = null;
+        gameGUI.disposePromo();
     }
 
     @Override
@@ -274,7 +325,19 @@ public class Board extends JPanel implements MouseListener {
                     }
                 }
                 selectedPiece.move(chosen);
-                deselectPiece();
+                if (selectedPiece.name().equals("(P)") && (selectedPiece.getPosition().getPosY() == 7 || selectedPiece.getPosition().getPosY() == 0))
+                {
+                    promotionPiece = selectedPiece;
+                    if (promotionPiece == null)
+                        System.out.println("assigned null");
+                    deselectPiece();
+                    if (promotionPiece == null)
+                        System.out.println("deselected, null");
+                    turn = Tag.Color.OVER; //manually pause until promotion is done
+                    gameGUI.promotionPopUp(promotionPiece.getSide());
+                }
+                else
+                    deselectPiece();
                 if (kingTaken)
                     kingWasTaken();
                 else

@@ -11,7 +11,7 @@ public class Tag {
     public static enum Status { ACTIVE, CHECK, CHECKMATE, STAKEMATE, SURRENDER }
 
     // image size
-    public static final int IMAGE_WIDTH =75;
+    public static final int IMAGE_WIDTH = 75;
     public static final int IMAGE_HEIGHT = 75;
     
     // lazy chess icon
