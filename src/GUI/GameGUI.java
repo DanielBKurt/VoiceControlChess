@@ -13,26 +13,25 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import BoardComponents.Board;
-import SpeechRecognizer.SpeechRecognizerMain;
-import SpeechRecognizer.SpeechCaller;
 import GUI.MainCaller;
 import Information.Tag;
 
 public class GameGUI {
-    public class GameMover implements SpeechCaller {
-        public GameMover() {}
-        public void Call(String speechReceived) {
-            boardGUI.speechCalled(speechReceived);
+    public class SpeechGameMover implements GameSpeechCaller {
+        public SpeechGameMover () { }
+        public void sendSpeechResult(String result)
+        {
+            boardGUI.speechCalled(result);
         }
     }
     private JFrame gameGUI;
     private Board boardGUI;
-    private SpeechCaller speechGameMover = new GameMover();
     private MainCaller mainCaller;
-    private SpeechRecognizerMain speech = new SpeechRecognizerMain(speechGameMover);
+    private GameSpeechCaller mover;
 
     public GameGUI(MainCaller caller) { 
         mainCaller = caller;
+        mover = new SpeechGameMover();
         initializeGameGUI();
     }
     
@@ -85,27 +84,13 @@ public class GameGUI {
     }
 
     private void speakItemActionPerformed(ActionEvent e) {
-        //mainCaller
-    	try
-        {
-            Thread.sleep(500); //without delay, mic registers mouse click as command
-        }
-        catch(InterruptedException ex)
-        {
-            Thread.currentThread().interrupt();
-        }
-        speech.stopIgnoreSpeechRecognitionResults(); //handled in while loop of try statement
-        //once no longer ignored, speech is recognized once and then ignored again, result is passed through
-        //SpeecherCaller which is interface in SpeecherRecognizer package and defined within this class, gives it
-        //access to variables of this class while being called from SpeechRecognizerMain, allowing
-        //SpeechRecognizerMain to pass a string in to this instance of Board
+        mainCaller.speakButton(mover);
     }
     
     private void quitItemActionPerformed(ActionEvent e) {
         int quit = JOptionPane.showConfirmDialog(gameGUI, "Are you sure you want to quit?", "Quit", JOptionPane.OK_CANCEL_OPTION);
         if(quit == JOptionPane.OK_OPTION) 
         {
-            speech.stopSpeechRecognizerThread();
             gameGUI.dispose();
             mainCaller.Quit();
         }
@@ -117,7 +102,6 @@ public class GameGUI {
         "\nThis game session has not been saved.",
         "Main Menu", JOptionPane.OK_CANCEL_OPTION);
         if(quit == JOptionPane.OK_OPTION) {
-            speech.stopSpeechRecognizerThread();
             gameGUI.dispose();
             mainCaller.MainMenu();
         }

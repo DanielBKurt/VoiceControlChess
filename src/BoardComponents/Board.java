@@ -260,7 +260,7 @@ public class Board extends JPanel implements MouseListener {
                 boolean kingTaken = false;
                 if (!(chosen.isFree()) && chosen.getPiece().name().equals("(K)"))
                     kingTaken = true;
-                else if (selectedPiece.name().equals("(P)"))
+                else if (selectedPiece.name().equals("(P)")) //check for en passant
                 {
                     if (Math.abs(selectedPiece.getPosition().getPosY() - chosen.getPosY()) == 2) //moving forward two, sets up en passant
                     {

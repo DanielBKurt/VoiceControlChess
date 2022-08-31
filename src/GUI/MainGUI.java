@@ -17,16 +17,48 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import Information.Tag;
+import SpeechRecognizer.SpeechRecognizerMain;
+import SpeechRecognizer.SpeechCaller;
 
 public class MainGUI implements Runnable {
+    private SpeechCaller speechGameMover = new GameMover();
+    private SpeechRecognizerMain speech = new SpeechRecognizerMain(speechGameMover);
+    private GameSpeechCaller currentGame;
+    public class GameMover implements SpeechCaller {
+        public GameMover() {}
+        public void Call(String speechReceived) {
+            currentGame.sendSpeechResult(speechReceived);
+        }
+    }
     public class MainCalls implements MainCaller {
         public MainCalls() { }
+        //I dont have direct access to instance of game since it is declared as new in invokeLater method call
+        public void speakButton(GameSpeechCaller game)
+        {
+            currentGame = game;
+            try
+            {
+                Thread.sleep(500); //without delay, mic registers mouse click as command
+            }
+            catch(InterruptedException ex)
+            {
+                Thread.currentThread().interrupt();
+            }
+            speech.stopIgnoreSpeechRecognitionResults(); //handled in while loop of try statement
+            //once no longer ignored, speech is recognized once and then ignored again, result is passed through
+            //SpeecherCaller which is interface in SpeecherRecognizer package and defined within this class, gives it
+            //access to variables of this class while being called from SpeechRecognizerMain, allowing
+            //SpeechRecognizerMain to pass a string in to mainGui
+            //interface and seperate implementation is used because speech recognizer is not designed to return anything
+            //defined within main instead of game to avoid reinstantiation error if more than one game is started
+        }
         public void MainMenu() 
         {
             mainGUI.setVisible(true);
         }
         public void Quit()
         {
+            speech.stopSpeechRecognizerThread();
             exit();
         }
     }
