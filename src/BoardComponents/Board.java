@@ -148,6 +148,13 @@ public class Board extends JPanel implements MouseListener {
         repaint();
     }
 
+    private void selectPiece(Piece piece)
+    {
+        selectedPiece = piece;
+        setSelectedMovablePositions(selectedPiece);
+        highlighedLegalPositions(selectedMovablePositions);
+    }
+
     private void deselectPiece() {
         if(selectedPiece != null) {
             dehighlightlegalPositions(selectedMovablePositions);
@@ -178,49 +185,17 @@ public class Board extends JPanel implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {        
         Position clickedPosition = (Position) this.getComponentAt(new Point(e.getX(), e.getY()));
-        if(e.getButton() == MouseEvent.BUTTON1 && selectedPiece == null) {
-            if(!clickedPosition.isFree() && clickedPosition.getPiece().getSide() == turn) {
-                selectedPiece = clickedPosition.getPiece();
-                setSelectedMovablePositions(selectedPiece);
-                highlighedLegalPositions(selectedMovablePositions);
-            } else {
+        if(e.getButton() == MouseEvent.BUTTON1 && selectedPiece == null) 
+        {
+            if(!clickedPosition.isFree() && clickedPosition.getPiece().getSide() == turn)
+                selectPiece(clickedPosition.getPiece());
+            else
                 deselectPiece();
-            }
-        } else if (e.getButton() == MouseEvent.BUTTON1 && selectedPiece != null) {
-            if(clickedPosition.isFree() || clickedPosition.getPiece().getSide() != turn) {
-                if(selectedMovablePositions.contains(clickedPosition)) {
-                	boolean kingTaken = false;
-                	if (!(clickedPosition.isFree()) && clickedPosition.getPiece().name().equals("(K)"))
-                		kingTaken = true;
-                    else if (selectedPiece.name().equals("(P)"))
-                    {
-                        System.out.println("Is pawn");
-                        System.out.println("At: " + selectedPiece.getPosition().getPosX() + ", " + selectedPiece.getPosition().getPosY());
-                        if (Math.abs(selectedPiece.getPosition().getPosY() - clickedPosition.getPosY()) == 2) //moving forward two, sets up en passant
-                        {
-                            System.out.println("Setting en passant");
-                            setEnPassant(selectedPiece);
-                            System.out.println("Set");
-                        }
-                        else if (gameBoard[clickedPosition.getPosY()][clickedPosition.getPosX()].getEnPassant()) //not moving forward 2, check if attempting en passant
-                        {
-                            Position enPassantedPawn = enPassantPawn.getPosition();
-                            clearEnPassant();
-                            enPassantedPawn.removePiece();
-                        }
-                    }
-                    selectedPiece.move(clickedPosition);
-                    deselectPiece();
-                    if (kingTaken)
-                    	kingWasTaken();
-                    else
-                    	nextTurn();
-                }
-            }
         } 
-        else {
+        else if (e.getButton() == MouseEvent.BUTTON1 && selectedPiece != null) 
+            mover(clickedPosition);
+        else
             deselectPiece();
-        }
         repaint();
     }
 
@@ -262,33 +237,50 @@ public class Board extends JPanel implements MouseListener {
         //board display is flipped on x and y, 7 - y to account for it being reversed
         Position spokenPosition = gameBoard[7 - y][x];
 
-        if(selectedPiece == null) {
-            if(!spokenPosition.isFree() && spokenPosition.getPiece().getSide() == turn) {
-                selectedPiece = spokenPosition.getPiece();
-                setSelectedMovablePositions(selectedPiece);
-                highlighedLegalPositions(selectedMovablePositions);
-            } else {
+        if(selectedPiece == null) 
+        {
+            if(!spokenPosition.isFree() && spokenPosition.getPiece().getSide() == turn)
+                selectPiece(spokenPosition.getPiece());
+            else
                 deselectPiece();
-            }
-        } else if (selectedPiece != null) {
-            if(spokenPosition.isFree() || spokenPosition.getPiece().getSide() != turn) {
-                if(selectedMovablePositions.contains(spokenPosition)) {
-                	boolean kingTaken = false;
-                	if (!(spokenPosition.isFree()) && spokenPosition.getPiece().name().equals("(K)"))
-                		kingTaken = true;
-                    selectedPiece.move(spokenPosition);
-                    deselectPiece();
-                    if (kingTaken)
-                    	kingWasTaken();
-                    else
-                    	nextTurn();
-                }
-            }
         } 
-        else {
+        else if (selectedPiece != null)
+            mover(spokenPosition);
+        else
             deselectPiece();
-        }
         repaint();
+    }
+
+    public void mover(Position chosen)
+    {
+        if(chosen.isFree() || chosen.getPiece().getSide() != turn) 
+        {
+            if(selectedMovablePositions.contains(chosen)) 
+            {
+                boolean kingTaken = false;
+                if (!(chosen.isFree()) && chosen.getPiece().name().equals("(K)"))
+                    kingTaken = true;
+                else if (selectedPiece.name().equals("(P)"))
+                {
+                    if (Math.abs(selectedPiece.getPosition().getPosY() - chosen.getPosY()) == 2) //moving forward two, sets up en passant
+                    {
+                        setEnPassant(selectedPiece);
+                    }
+                    else if (gameBoard[chosen.getPosY()][chosen.getPosX()].getEnPassant()) //not moving forward 2, check if attempting en passant
+                    {
+                        Position enPassantedPawn = enPassantPawn.getPosition();
+                        clearEnPassant();
+                        enPassantedPawn.removePiece();
+                    }
+                }
+                selectedPiece.move(chosen);
+                deselectPiece();
+                if (kingTaken)
+                    kingWasTaken();
+                else
+                    nextTurn();
+            }
+        }
     }
 
 
