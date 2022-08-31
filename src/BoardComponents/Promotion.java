@@ -80,10 +80,7 @@ public class Promotion extends JPanel implements MouseListener {
     public void mouseClicked(MouseEvent e) {        
         Position clickedPosition = (Position) this.getComponentAt(new Point(e.getX(), e.getY()));
         if (clickedPosition.getPiece() != null)
-        {
-            System.out.println(clickedPosition.getPiece().name());
             currentBoard.promote(clickedPosition.getPiece().name());
-        }
     }
 
     /**

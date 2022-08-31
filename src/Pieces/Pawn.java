@@ -8,16 +8,14 @@ import Information.Tag.Color;
 
 public class Pawn extends Piece {
     private int up;
-    private Position firsPosition;
+    private boolean moved;
     
     public Pawn(Color side, Position start, String imageFileName) {
         super(side, start, imageFileName);
-        this.firsPosition = start;
+        moved = false;
         if(this.getSide() == Tag.Color.BLACK) this.up = 1;
         else this.up = -1;
     }
-
-    private boolean isFirstMove() { return this.getPosition() == firsPosition; }
 
     @Override
     public ArrayList<Position> getLegalMoves(Position[][] gameBoard) {
@@ -29,7 +27,7 @@ public class Pawn extends Piece {
         final int moveX = (startX + 1 * this.up);
 
         // first move condition
-        if(isFirstMove()) {
+        if(!getMoved()) {
             for(int i = 1; i <= 2; i++ ) {
                 if(gameBoard[startX  + i * this.up][startY].isFree())
                     pawnLegalMoves.add(gameBoard[startX  + i * this.up][startY]);
@@ -52,5 +50,15 @@ public class Pawn extends Piece {
     @Override
     public String name() {
         return "(P)";
+    }
+
+    @Override
+    public boolean getMoved() {
+        return this.moved;
+    }
+
+    @Override
+    public void setMoved() {
+        this.moved = true;
     }
 }

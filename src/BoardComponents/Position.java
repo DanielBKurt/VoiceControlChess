@@ -23,10 +23,12 @@ public class Position extends JComponent {
     //light and dark brown
     public static final Color DARK_BROWN = new Color(89, 32, 9);
     public static final Color LIGHT_BROWN = new Color(193, 142, 107);
-    public static final Color DARK_HIGHLIGHT = new Color(114, 47, 19);
+    public static final Color DARK_HIGHLIGHT = new Color(128, 56, 26);
     public static final Color LIGHT_HIGHLIGHT = new Color(235, 189, 158);
     public static final Color DARK_BORDER = new Color(223, 213, 206);
     public static final Color LIGHT_BORDER = new Color(68, 44, 27);
+    public static final Color YELLOW = new Color(220, 215, 61);
+    public static final Color ORANGE =new Color(250, 147, 44);
 
     private int posX;
     private int posY;
@@ -34,8 +36,9 @@ public class Position extends JComponent {
     private boolean highLight;
     private boolean ligherShade;
     private boolean displayPiece;
-    private boolean enPassant;
-    private boolean promotion;
+    private boolean selected;
+    private boolean enPassant; //this position can be taken with en passant
+    private boolean promotion; //prevent labels from showing up on promotion jframe
     private String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H"};
     private String[] numbers = {"1", "2", "3", "4", "5", "6", "7", "8"};
 
@@ -56,6 +59,7 @@ public class Position extends JComponent {
     public Piece getPiece() { return this.piece; }
     public boolean isLighterShade() { return this.ligherShade == true; }
     public boolean isHighlighed() { return this.highLight == true; }
+    public boolean isSelected() { return this.selected == true; }
     public boolean getDisplayPiece() { return this.displayPiece; }
     public boolean isFree() { return (this.piece == null); }
     public boolean getEnPassant() { return (this.enPassant); }
@@ -65,6 +69,7 @@ public class Position extends JComponent {
     public void setPosY(int y) { this.posY = y; }
     public void setShade(Boolean shade) { this.ligherShade = shade; }
     public void setHighLight(Boolean highlighed) { this.highLight = highlighed; }
+    public void setSelect(boolean select) { this.selected = select; }
     public void setDisplayPiece(boolean display) { this.displayPiece = display; }
     public void setEnPassant(boolean passant) { this.enPassant = passant; }
 
@@ -82,7 +87,36 @@ public class Position extends JComponent {
         return temp;
     }
 
+    //copied from stack exchange, used to merge color for selected piece background
+    //looks slightly different from unselected and unhighlighted squares
+    //if piece is selected that has no valid moves, UI shows nothing without selected color change, makes it confusing when computer mishears you
+    //https://stackoverflow.com/questions/19398238/how-to-mix-two-int-colors-correctly
+    public Color blend( Color c1, Color c2, float ratio ) {
+        if ( ratio > 1f ) ratio = 1f;
+        else if ( ratio < 0f ) ratio = 0f;
+        float iRatio = 1.0f - ratio;
     
+        int i1 = c1.getRGB();
+        int i2 = c2.getRGB();
+    
+        int a1 = (i1 >> 24 & 0xff);
+        int r1 = ((i1 & 0xff0000) >> 16);
+        int g1 = ((i1 & 0xff00) >> 8);
+        int b1 = (i1 & 0xff);
+    
+        int a2 = (i2 >> 24 & 0xff);
+        int r2 = ((i2 & 0xff0000) >> 16);
+        int g2 = ((i2 & 0xff00) >> 8);
+        int b2 = (i2 & 0xff);
+    
+        int a = (int)((a1 * iRatio) + (a2 * ratio));
+        int r = (int)((r1 * iRatio) + (r2 * ratio));
+        int g = (int)((g1 * iRatio) + (g2 * ratio));
+        int b = (int)((b1 * iRatio) + (b2 * ratio));
+    
+        return new Color( a << 24 | r << 16 | g << 8 | b );
+    }
+
      // method to draw position to screen and piece
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -90,9 +124,11 @@ public class Position extends JComponent {
         // draw light or dark position
         if(this.ligherShade) { 
             if(highLight) g.setColor(LIGHT_HIGHLIGHT);
+            else if (selected) g.setColor(blend(LIGHT_BROWN, ORANGE, 0.3f));
             else g.setColor(LIGHT_BROWN);
         } else {
             if(highLight) g.setColor(DARK_HIGHLIGHT);
+            else if (selected) g.setColor(blend(DARK_BROWN, ORANGE, 0.3f));
             else g.setColor(DARK_BROWN);
         }
 

@@ -66,7 +66,8 @@ public abstract class Piece {
         } else {
             desPosition.setPiece(this.position.removePiece());
         }
-
+        if (canMove)
+            this.setMoved();
         return canMove;
     }
 
@@ -87,6 +88,28 @@ public abstract class Piece {
     public boolean legalEnPassant(Position[][] gameBoard, int x, int y)
     {
         return ((positionInBounds(x) && positionInBounds(y)) && gameBoard[x][y].getEnPassant());
+    }
+
+    public boolean legalCastling(Position[][] gameBoard, int x, int y)
+    {
+        if (!this.getMoved())
+        {
+            if (y == 2)
+            {
+                if (gameBoard[x][3].isFree() && gameBoard[x][2].isFree() && gameBoard[x][1].isFree() && (gameBoard[x][0].getPiece().getSide() == this.getSide() && !gameBoard[x][0].getPiece().getMoved()))
+                    return true;
+                else
+                    return false;
+            }
+            else if (y == 6)
+            {
+                if (gameBoard[x][5].isFree() && gameBoard[x][6].isFree() && (gameBoard[x][7].getPiece().getSide() == this.getSide() && !gameBoard[x][7].getPiece().getMoved()))
+                    return true;
+                else
+                    return false;
+            }
+        }
+        return false;
     }
 
     /***
@@ -223,5 +246,14 @@ public abstract class Piece {
     
     public String name() { 
         return "(_)";
+    }
+
+    //will be overridden in king, rook, and pawn
+    public boolean getMoved() {
+        return true;
+    }
+
+    public void setMoved() {
+
     }
 }

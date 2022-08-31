@@ -13,9 +13,6 @@ public class King extends Piece {
         this.moved = false;
     }
 
-    public boolean isFirstMove() { return this.moved == true; }
-    public void setFirstMoveTrue() { this.moved = true; }
-
     @Override
     public ArrayList<Position> getLegalMoves(Position[][] gameBoard) {
         ArrayList<Position> kingLegalMoves = new ArrayList<Position>();
@@ -42,11 +39,28 @@ public class King extends Piece {
                 }
             }
         }
+        if (!this.getMoved())
+        {
+            if (legalCastling(gameBoard, start[0], 2))
+                kingLegalMoves.add(gameBoard[start[0]][2]);
+            if (legalCastling(gameBoard, start[0], 6))
+                kingLegalMoves.add(gameBoard[start[0]][6]);
+        }
         return kingLegalMoves;
     }
 
     @Override
     public String name() {
         return "(K)";
+    }
+
+    @Override
+    public boolean getMoved() {
+        return this.moved;
+    }
+
+    @Override
+    public void setMoved() {
+        this.moved = true;
     }
 }

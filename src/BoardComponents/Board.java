@@ -157,12 +157,14 @@ public class Board extends JPanel implements MouseListener {
     {
         selectedPiece = piece;
         setSelectedMovablePositions(selectedPiece);
+        selectedPiece.getPosition().setSelect(true);
         highlighedLegalPositions(selectedMovablePositions);
     }
 
     private void deselectPiece() {
         if(selectedPiece != null) {
             dehighlightlegalPositions(selectedMovablePositions);
+            selectedPiece.getPosition().setSelect(false);
             selectedPiece = null;
         }
     }
@@ -185,6 +187,22 @@ public class Board extends JPanel implements MouseListener {
         int x = piece.getPosition().getPosX();
         gameBoard[y][x].setEnPassant(true);
         enPassantPawn = piece;
+    }
+
+    private void castle(Piece piece)
+    {
+        int y = piece.getPosition().getPosY(); //get y coord from king
+        if (piece.getPosition().getPosX() == 2) //did king go left or right, already moved king when castle is called
+        {
+            Piece rook = gameBoard[y][0].removePiece();
+            gameBoard[y][3].setPiece(rook);
+        }
+        else if (piece.getPosition().getPosX() == 6)
+        {
+            Piece rook = gameBoard[y][7].removePiece();
+            gameBoard[y][5].setPiece(rook);
+        }
+        repaint();
     }
 
     public void promote(String name)
@@ -308,9 +326,15 @@ public class Board extends JPanel implements MouseListener {
         {
             if(selectedMovablePositions.contains(chosen)) 
             {
+                selectedPiece.getPosition().setSelect(false);
                 boolean kingTaken = false;
+                //en passant and castling are based on distance moved so they must be checked before piece is moved
+                //move is within if statements because I need to check for castling (based on king before move), then move king, then call castle (based on king position after move)
                 if (!(chosen.isFree()) && chosen.getPiece().name().equals("(K)"))
+                {
                     kingTaken = true;
+                    selectedPiece.move(chosen);
+                }
                 else if (selectedPiece.name().equals("(P)")) //check for en passant
                 {
                     if (Math.abs(selectedPiece.getPosition().getPosY() - chosen.getPosY()) == 2) //moving forward two, sets up en passant
@@ -323,16 +347,25 @@ public class Board extends JPanel implements MouseListener {
                         clearEnPassant();
                         enPassantedPawn.removePiece();
                     }
+                    selectedPiece.move(chosen); //outside of inner if else if because it may be pawn but not using en passant
                 }
-                selectedPiece.move(chosen);
+                else if (selectedPiece.name().equals("(K)")) //check for castling
+                {
+                    if (Math.abs(selectedPiece.getPosition().getPosX() - chosen.getPosX()) == 2)
+                    {
+                        selectedPiece.move(chosen); //must move before calling castle as, unlike en passant, castle relies on kings new position (left or right)
+                        castle(selectedPiece);
+                    }
+                    else //selected is king, not moving into castling position
+                        selectedPiece.move(chosen); //since there is outer if else statement, each if else block must move piece regardless of if it is special case (ie castling)
+                }
+                else //default, not pawn or king
+                    selectedPiece.move(chosen);
+                //pawn can take and then be promoted so promotion check comes after move
                 if (selectedPiece.name().equals("(P)") && (selectedPiece.getPosition().getPosY() == 7 || selectedPiece.getPosition().getPosY() == 0))
                 {
                     promotionPiece = selectedPiece;
-                    if (promotionPiece == null)
-                        System.out.println("assigned null");
                     deselectPiece();
-                    if (promotionPiece == null)
-                        System.out.println("deselected, null");
                     turn = Tag.Color.OVER; //manually pause until promotion is done
                     gameGUI.promotionPopUp(promotionPiece.getSide());
                 }

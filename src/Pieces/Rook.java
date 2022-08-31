@@ -13,9 +13,6 @@ public class Rook extends Piece {
         this.moved = false;
     }
 
-    public boolean isFirstMove() { return this.moved == true; }
-    public void setFirstMoveTrue() { this.moved = true; }
-
     @Override
     public ArrayList<Position> getLegalMoves(Position[][] gameBoard) {
         ArrayList<Position> rookLegalMoves = new ArrayList<Position>();
@@ -26,6 +23,16 @@ public class Rook extends Piece {
     @Override
     public String name() { 
         return "(R)"; 
+    }
+
+    @Override
+    public boolean getMoved() {
+        return this.moved;
+    }
+
+    @Override
+    public void setMoved() {
+        this.moved = true;
     }
     
 }
