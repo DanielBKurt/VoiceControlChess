@@ -15,6 +15,7 @@ import javax.swing.SwingUtilities;
 import BoardComponents.Board;
 import SpeechRecognizer.SpeechRecognizerMain;
 import SpeechRecognizer.SpeechCaller;
+import GUI.MainCaller;
 import Information.Tag;
 
 public class GameGUI {
@@ -27,9 +28,11 @@ public class GameGUI {
     private JFrame gameGUI;
     private Board boardGUI;
     private SpeechCaller speechGameMover = new GameMover();
+    private MainCaller mainCaller;
     private SpeechRecognizerMain speech = new SpeechRecognizerMain(speechGameMover);
 
-    public GameGUI() { 
+    public GameGUI(MainCaller caller) { 
+        mainCaller = caller;
         initializeGameGUI();
     }
     
@@ -82,6 +85,7 @@ public class GameGUI {
     }
 
     private void speakItemActionPerformed(ActionEvent e) {
+        //mainCaller
     	try
         {
             Thread.sleep(500); //without delay, mic registers mouse click as command
@@ -101,8 +105,9 @@ public class GameGUI {
         int quit = JOptionPane.showConfirmDialog(gameGUI, "Are you sure you want to quit?", "Quit", JOptionPane.OK_CANCEL_OPTION);
         if(quit == JOptionPane.OK_OPTION) 
         {
-        	speech.stopSpeechRecognizerThread();
-        	gameGUI.dispose();
+            speech.stopSpeechRecognizerThread();
+            gameGUI.dispose();
+            mainCaller.Quit();
         }
     }
 
@@ -112,8 +117,9 @@ public class GameGUI {
         "\nThis game session has not been saved.",
         "Main Menu", JOptionPane.OK_CANCEL_OPTION);
         if(quit == JOptionPane.OK_OPTION) {
-            SwingUtilities.invokeLater(new MainGUI());
+            speech.stopSpeechRecognizerThread();
             gameGUI.dispose();
+            mainCaller.MainMenu();
         }
     }
 }

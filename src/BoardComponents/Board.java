@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.lang.Math;
 
 import javax.swing.JPanel;
 
@@ -31,6 +32,7 @@ public class Board extends JPanel implements MouseListener {
     private int selectedX;
     private int selectedY;
     private Piece selectedPiece;
+    private Piece enPassantPawn;
     public ArrayList<Position> selectedMovablePositions;
     
     public Board(GameGUI gui) {
@@ -42,6 +44,7 @@ public class Board extends JPanel implements MouseListener {
         this.initializePiecesToBoard();
         this.setPanelDimensions(FRA_DIMENSION);
         this.setTurn(Color.WHITE);
+        enPassantPawn = null;
     }
 
     /***
@@ -106,7 +109,12 @@ public class Board extends JPanel implements MouseListener {
     public void setSelectedX(int selected) { this.selectedX = selected; }
     public void setSelectedY(int selected) { this.selectedY = selected; }
     public void setSelectedMovablePositions(Piece piece) { this.selectedMovablePositions = piece.getLegalMoves(this.gameBoard); }
-    public void nextTurn() { turn = (this.turn == Color.BLACK) ? Color.WHITE : Color.BLACK; }
+    public void nextTurn() 
+    { 
+        turn = (this.turn == Color.BLACK) ? Color.WHITE : Color.BLACK;
+        if (enPassantPawn != null && enPassantPawn.getSide() == this.turn) //en Passant is valid for only one move
+            clearEnPassant(); //en passant for white pawn no longer valid once black moves
+    }
     public void kingWasTaken() { turn = Color.OVER; }
 
     // getter
@@ -147,16 +155,29 @@ public class Board extends JPanel implements MouseListener {
         }
     }
 
-    /***
-     * TODO - add checkmate detection
-     * controlling the game via mouse
-     * left-click to select piece and move
-     * right-click to deselect
-     */
+    private void clearEnPassant()
+    {
+        if (enPassantPawn != null)
+        {
+            int y = (enPassantPawn.getSide() == Color.WHITE) ? 5 : 2;
+            int x = enPassantPawn.getPosition().getPosX();
+            gameBoard[y][x].setEnPassant(false);
+            enPassantPawn = null;
+        }
+    }
+
+    private void setEnPassant(Piece piece)
+    {
+        clearEnPassant();
+        int y = (piece.getSide() == Color.WHITE) ? 5 : 2;
+        int x = piece.getPosition().getPosX();
+        gameBoard[y][x].setEnPassant(true);
+        enPassantPawn = piece;
+    }
+
     @Override
     public void mouseClicked(MouseEvent e) {        
         Position clickedPosition = (Position) this.getComponentAt(new Point(e.getX(), e.getY()));
-
         if(e.getButton() == MouseEvent.BUTTON1 && selectedPiece == null) {
             if(!clickedPosition.isFree() && clickedPosition.getPiece().getSide() == turn) {
                 selectedPiece = clickedPosition.getPiece();
@@ -171,6 +192,23 @@ public class Board extends JPanel implements MouseListener {
                 	boolean kingTaken = false;
                 	if (!(clickedPosition.isFree()) && clickedPosition.getPiece().name().equals("(K)"))
                 		kingTaken = true;
+                    else if (selectedPiece.name().equals("(P)"))
+                    {
+                        System.out.println("Is pawn");
+                        System.out.println("At: " + selectedPiece.getPosition().getPosX() + ", " + selectedPiece.getPosition().getPosY());
+                        if (Math.abs(selectedPiece.getPosition().getPosY() - clickedPosition.getPosY()) == 2) //moving forward two, sets up en passant
+                        {
+                            System.out.println("Setting en passant");
+                            setEnPassant(selectedPiece);
+                            System.out.println("Set");
+                        }
+                        else if (gameBoard[clickedPosition.getPosY()][clickedPosition.getPosX()].getEnPassant()) //not moving forward 2, check if attempting en passant
+                        {
+                            Position enPassantedPawn = enPassantPawn.getPosition();
+                            clearEnPassant();
+                            enPassantedPawn.removePiece();
+                        }
+                    }
                     selectedPiece.move(clickedPosition);
                     deselectPiece();
                     if (kingTaken)

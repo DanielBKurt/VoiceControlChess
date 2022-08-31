@@ -34,7 +34,7 @@ public abstract class Piece {
     
     public void setImage(String imageFileName) { 
         if (this.image == null)
-            try { this.image = ImageIO.read(new File(imageFileName));
+            try { this.image = ImageIO.read(new File(imageFileName)); //try catch because different java versions require different paths to find and render image
             } 
             catch (IOException e) { 
                 try { 
@@ -82,6 +82,11 @@ public abstract class Piece {
 
     public boolean complexLegalPostion(Position[][] gameBoard, int x, int y) {
         return (!gameBoard[x][y].isFree() && gameBoard[x][y].getPiece().getSide() != this.getSide());
+    }
+
+    public boolean legalEnPassant(Position[][] gameBoard, int x, int y)
+    {
+        return ((positionInBounds(x) && positionInBounds(y)) && gameBoard[x][y].getEnPassant());
     }
 
     /***

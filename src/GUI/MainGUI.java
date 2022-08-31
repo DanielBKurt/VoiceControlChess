@@ -3,6 +3,8 @@ package GUI;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowEvent;
+import java.awt.EventQueue;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -17,6 +19,17 @@ import javax.swing.SwingUtilities;
 import Information.Tag;
 
 public class MainGUI implements Runnable {
+    public class MainCalls implements MainCaller {
+        public MainCalls() { }
+        public void MainMenu() 
+        {
+            mainGUI.setVisible(true);
+        }
+        public void Quit()
+        {
+            exit();
+        }
+    }
     private static final int VERTICAL_SPACE = 50;
     private static final int COLUMN_SPACE = 10;
 
@@ -108,8 +121,9 @@ public class MainGUI implements Runnable {
     }
 
     private void playItemActionPerformed(ActionEvent e) {
-        new GameGUI();
-        mainGUI.dispose();
+        System.out.println("Creating new game");
+        new GameGUI(new MainCalls());
+        mainGUI.setVisible(false);
     }
 
     private void helpItemActionPerformed(ActionEvent e) {
@@ -123,5 +137,9 @@ public class MainGUI implements Runnable {
     private void quitItemActionPerformed(java.awt.event.ActionEvent e) {
         int quit = JOptionPane.showConfirmDialog(mainGUI, "Are you sure you want to quit?", "Quit", JOptionPane.OK_CANCEL_OPTION);
         if(quit == JOptionPane.OK_OPTION) mainGUI.dispose();
+        exit();
+    }
+    private void exit() {
+        mainGUI.dispatchEvent(new WindowEvent(mainGUI, WindowEvent.WINDOW_CLOSING));
     }
 }

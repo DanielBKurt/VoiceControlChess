@@ -41,9 +41,9 @@ public class Pawn extends Piece {
         if(positionInBounds(moveX)) {
             if(gameBoard[moveX][startY].isFree())
                 pawnLegalMoves.add(gameBoard[moveX][startY]);
-            if(positionInBounds(moveYNeg) && complexLegalPostion(gameBoard, moveX, moveYNeg))
+            if(positionInBounds(moveYNeg) && (complexLegalPostion(gameBoard, moveX, moveYNeg) || legalEnPassant(gameBoard, moveX, moveYNeg)))
                 pawnLegalMoves.add(gameBoard[moveX][moveYNeg]);
-            if(positionInBounds(moveYPos) && complexLegalPostion(gameBoard, moveX, moveYPos))
+            if(positionInBounds(moveYPos) && (complexLegalPostion(gameBoard, moveX, moveYPos) || legalEnPassant(gameBoard, moveX, moveYPos)))
                 pawnLegalMoves.add(gameBoard[moveX][moveYPos]);
         }
         return pawnLegalMoves;

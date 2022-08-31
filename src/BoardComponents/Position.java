@@ -22,6 +22,7 @@ public class Position extends JComponent {
     private boolean highLight;
     private boolean ligherShade;
     private boolean displayPiece;
+    private boolean enPassant;
 
     public Position(int x, int y, boolean light) {
         setPosX(x);
@@ -30,6 +31,7 @@ public class Position extends JComponent {
         setHighLight(false);
         setDisplayPiece(false);
         this.setBorder(BorderFactory.createEmptyBorder());
+        enPassant = false;
     }
 
     // getters
@@ -40,6 +42,7 @@ public class Position extends JComponent {
     public boolean isHighlighed() { return this.highLight == true; }
     public boolean getDisplayPiece() { return this.displayPiece; }
     public boolean isFree() { return (this.piece == null); }
+    public boolean getEnPassant() { return (this.enPassant); }
 
     // setters
     public void setPosX(int x) { this.posX = x; }
@@ -47,6 +50,7 @@ public class Position extends JComponent {
     public void setShade(Boolean shade) { this.ligherShade = shade; }
     public void setHighLight(Boolean highlighed) { this.highLight = highlighed; }
     public void setDisplayPiece(boolean display) { this.displayPiece = display; }
+    public void setEnPassant(boolean passant) { this.enPassant = passant; }
 
     public void setPiece(Piece piece) { 
         this.piece = piece;
@@ -83,5 +87,11 @@ public class Position extends JComponent {
         // display piece if it is at current position
         g.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
         if(this.piece != null && displayPiece) piece.draw(g);
+        /*
+        if (this.getPosY() == 7)
+        {
+            
+        }
+        */
     }
 }
