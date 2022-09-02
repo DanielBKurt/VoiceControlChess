@@ -96,14 +96,14 @@ public abstract class Piece {
         {
             if (y == 2)
             {
-                if (gameBoard[x][3].isFree() && gameBoard[x][2].isFree() && gameBoard[x][1].isFree() && (gameBoard[x][0].getPiece().getSide() == this.getSide() && !gameBoard[x][0].getPiece().getMoved()))
+                if (gameBoard[x][3].isFree() && gameBoard[x][2].isFree() && gameBoard[x][1].isFree() && (!gameBoard[x][0].isFree() && gameBoard[x][0].getPiece().getSide() == this.getSide() && !gameBoard[x][0].getPiece().getMoved()))
                     return true;
                 else
                     return false;
             }
             else if (y == 6)
             {
-                if (gameBoard[x][5].isFree() && gameBoard[x][6].isFree() && (gameBoard[x][7].getPiece().getSide() == this.getSide() && !gameBoard[x][7].getPiece().getMoved()))
+                if (gameBoard[x][5].isFree() && gameBoard[x][6].isFree() && (!gameBoard[x][7].isFree() && gameBoard[x][7].getPiece().getSide() == this.getSide() && !gameBoard[x][7].getPiece().getMoved()))
                     return true;
                 else
                     return false;

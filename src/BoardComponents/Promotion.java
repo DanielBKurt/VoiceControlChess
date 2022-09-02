@@ -20,6 +20,7 @@ import Pieces.Piece;
 import Pieces.Queen;
 import Pieces.Rook;
 
+//this class is similar to Board except it has a 1x4 board instead of 8x8, used to display and select the piece to upgrade a pawn to
 public class Promotion extends JPanel implements MouseListener {
     private Board currentBoard;
     private static final Dimension FRA_DIMENSION = new Dimension((Tag.IMAGE_WIDTH + 10) * 10, (Tag.IMAGE_HEIGHT + 10) * 10);
@@ -35,14 +36,11 @@ public class Promotion extends JPanel implements MouseListener {
             pieces[0][i] = new Position(i, 0, false, true);
             this.add(pieces[0][i]);
         }
-        System.out.println("Added pieces: " + this.getSize());
         if (color == Tag.Color.WHITE)
             initializeWhite();
         else
             initializeBlack();
-        System.out.println("Initialized pieces: " + this.getSize());
         this.addMouseListener(this);
-        System.out.println("Initialized mouse: " + this.getSize());
     }
 
     private void initializeWhite()

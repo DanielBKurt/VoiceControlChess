@@ -28,7 +28,8 @@ public class Position extends JComponent {
     public static final Color DARK_BORDER = new Color(223, 213, 206);
     public static final Color LIGHT_BORDER = new Color(68, 44, 27);
     public static final Color YELLOW = new Color(220, 215, 61);
-    public static final Color ORANGE =new Color(250, 147, 44);
+    public static final Color ORANGE = new Color(250, 147, 44);
+    public static final Color RED = new Color(196, 0, 33);
 
     private int posX;
     private int posY;
@@ -37,6 +38,8 @@ public class Position extends JComponent {
     private boolean ligherShade;
     private boolean displayPiece;
     private boolean selected;
+    private boolean check;
+    private boolean checkmate;
     private boolean enPassant; //this position can be taken with en passant
     private boolean promotion; //prevent labels from showing up on promotion jframe
     private String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H"};
@@ -48,6 +51,8 @@ public class Position extends JComponent {
         setShade(light);
         setHighLight(false);
         setDisplayPiece(false);
+        setSelect(false);
+        setCheck(false);
         this.setBorder(BorderFactory.createEmptyBorder());
         enPassant = false;
         this.promotion = promotion;
@@ -70,6 +75,8 @@ public class Position extends JComponent {
     public void setShade(Boolean shade) { this.ligherShade = shade; }
     public void setHighLight(Boolean highlighed) { this.highLight = highlighed; }
     public void setSelect(boolean select) { this.selected = select; }
+    public void setCheck(boolean check) { this.check = check; }
+    public void setCheckmate(boolean checkmate) { this.checkmate = checkmate; }
     public void setDisplayPiece(boolean display) { this.displayPiece = display; }
     public void setEnPassant(boolean passant) { this.enPassant = passant; }
 
@@ -125,10 +132,14 @@ public class Position extends JComponent {
         if(this.ligherShade) { 
             if(highLight) g.setColor(LIGHT_HIGHLIGHT);
             else if (selected) g.setColor(blend(LIGHT_BROWN, ORANGE, 0.3f));
+            else if (check) g.setColor(blend(LIGHT_BROWN, RED, 0.45f));
+            else if (checkmate) g.setColor(YELLOW);
             else g.setColor(LIGHT_BROWN);
         } else {
             if(highLight) g.setColor(DARK_HIGHLIGHT);
             else if (selected) g.setColor(blend(DARK_BROWN, ORANGE, 0.3f));
+            else if (check) g.setColor(blend(DARK_BROWN, RED, 0.3f));
+            else if (checkmate) g.setColor(YELLOW);
             else g.setColor(DARK_BROWN);
         }
 
