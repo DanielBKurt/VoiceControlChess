@@ -15,6 +15,8 @@ import edu.cmu.sphinx.api.LiveSpeechRecognizer;
 import edu.cmu.sphinx.api.SpeechResult;
 import edu.cmu.sphinx.result.WordResult;
 
+import BoardComponents.Board;
+
 public class SpeechRecognizerMain {
 	
 	// Necessary
@@ -63,12 +65,11 @@ public class SpeechRecognizerMain {
 	
 	//------------------------------------------------------------------------------------
 	
-	private SpeechCaller mover;
+	private Board currentGame;
 	/**
 	 * Constructor
 	 */
-	public SpeechRecognizerMain(SpeechCaller chessMover) {
-		mover = chessMover;
+	public SpeechRecognizerMain() {
 
 		// Loading Message
 		logger.log(Level.INFO, "Loading Speech Recognizer...\n");
@@ -110,6 +111,11 @@ public class SpeechRecognizerMain {
 		startResourcesThread();
 		//Start speech recognition thread
 		startSpeechRecognition();
+	}
+
+	public void updateGame(Board game)
+	{
+		currentGame = game;
 	}
 	
 	//-----------------------------------------------------------------------------------------------
@@ -241,7 +247,7 @@ public class SpeechRecognizerMain {
 	public void makeDecision(String speech , List<WordResult> speechWords) {
 		
 		System.out.println(speech);
-		mover.Call(speech);
+		currentGame.speechCalled(speech);
 	}
 	
 	public boolean getIgnoreSpeechRecognitionResults() {
@@ -258,6 +264,6 @@ public class SpeechRecognizerMain {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new SpeechRecognizerMain(null);
+		new SpeechRecognizerMain();
 	}
 }

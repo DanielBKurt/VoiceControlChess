@@ -11,36 +11,28 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
 
 import BoardComponents.Board;
-import BoardComponents.Position;
 import BoardComponents.Promotion;
-import GUI.MainCaller;
 import Information.Tag;
+import SpeechRecognizer.SpeechRecognizerMain;
 
 public class GameGUI {
-    public class SpeechGameMover implements GameSpeechCaller {
-        public SpeechGameMover () { }
-        public void sendSpeechResult(String result)
-        {
-            boardGUI.speechCalled(result);
-        }
-    }
     private String playerOneName;
     private String playerTwoName;
     private JFrame gameGUI;
     private JFrame promo;
     private Board boardGUI;
-    private MainCaller mainCaller;
-    private GameSpeechCaller mover;
+    private MainGUI main;
+    private SpeechRecognizerMain speech;
 
-    public GameGUI(MainCaller caller, String playerOne, String playerTwo) { 
-        mainCaller = caller;
-        mover = new SpeechGameMover();
+    public GameGUI(MainGUI main, SpeechRecognizerMain speech, String playerOne, String playerTwo) { 
+        this.main = main;
+        this.speech = speech;
         playerOneName = playerOne;
         playerTwoName = playerTwo;
         initializeGameGUI();
+        speech.updateGame(boardGUI);
     }
     
     private void initializeGameGUI() {
@@ -123,7 +115,15 @@ public class GameGUI {
     }
 
     private void speakItemActionPerformed(ActionEvent e) {
-        mainCaller.speakButton(mover);
+        try
+        {
+            Thread.sleep(400); //without delay, mic registers mouse click as command
+        }
+        catch(InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
+        }
+        speech.stopIgnoreSpeechRecognitionResults();
     }
     
     private void quitItemActionPerformed(ActionEvent e) {
@@ -131,7 +131,7 @@ public class GameGUI {
         if(quit == JOptionPane.OK_OPTION) 
         {
             gameGUI.dispose();
-            mainCaller.Quit();
+            main.exit();
         }
     }
 
@@ -142,7 +142,7 @@ public class GameGUI {
         "Main Menu", JOptionPane.OK_CANCEL_OPTION);
         if(quit == JOptionPane.OK_OPTION) {
             gameGUI.dispose();
-            mainCaller.MainMenu();
+            main.mainMenu();
         }
     }
 

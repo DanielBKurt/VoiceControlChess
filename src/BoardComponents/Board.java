@@ -264,8 +264,8 @@ public class Board extends JPanel implements MouseListener {
 
     private void deselectPiece() {
         if(selectedPiece != null) {
-            dehighlightlegalPositions(selectedMovablePositions);
             selectedPiece.getPosition().setSelect(false);
+            dehighlightlegalPositions(selectedMovablePositions);
             selectedPiece = null;
         }
     }
