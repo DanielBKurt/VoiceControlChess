@@ -228,6 +228,7 @@ public class Board extends JPanel implements MouseListener {
                 {
                     wKing.getPosition().setCheckmate(true);
                     turn = Color.OVER;
+                    gameGUI.updateCheckMate(Color.BLACK);
                 }
                 else
                 {
@@ -245,6 +246,7 @@ public class Board extends JPanel implements MouseListener {
                 {
                     bKing.getPosition().setCheckmate(true);
                     turn = Color.OVER;
+                    gameGUI.updateCheckMate(Color.WHITE);
                 }
                 else
                 {

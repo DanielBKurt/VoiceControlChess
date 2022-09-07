@@ -199,6 +199,16 @@ public class GameGUI {
         currentTurn.append(" (in check)");
     }
 
+    //replaces top text with checkmate, bottom text with winner name
+    public void updateCheckMate(Tag.Color color)
+    {
+        speechOutput.replaceRange("Checkmate", 0, speechOutput.getText().length());
+        if (color == Tag.Color.WHITE)
+            currentTurn.replaceRange("Winner: " + playerOneName, 0, currentTurn.getText().length());
+        else
+            currentTurn.replaceRange("Winner: " + playerTwoName, 0, currentTurn.getText().length());
+    }
+
     public void promotionPopUp(Tag.Color color)
     {
         Promotion promGUI = new Promotion(color, this.boardGUI);

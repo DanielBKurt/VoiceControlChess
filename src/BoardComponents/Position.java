@@ -135,13 +135,13 @@ public class Position extends JComponent {
             if(highLight) g.setColor(LIGHT_HIGHLIGHT);
             else if (selected) g.setColor(blend(LIGHT_BROWN, ORANGE, 0.3f));
             else if (check) g.setColor(blend(LIGHT_BROWN, RED, 0.45f));
-            else if (checkmate) g.setColor(YELLOW);
+            else if (checkmate) g.setColor(RED);
             else g.setColor(LIGHT_BROWN);
         } else {
             if(highLight) g.setColor(DARK_HIGHLIGHT);
             else if (selected) g.setColor(blend(DARK_BROWN, ORANGE, 0.3f));
             else if (check) g.setColor(blend(DARK_BROWN, RED, 0.3f));
-            else if (checkmate) g.setColor(YELLOW);
+            else if (checkmate) g.setColor(RED);
             else g.setColor(DARK_BROWN);
         }
 
