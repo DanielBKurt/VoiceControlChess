@@ -27,12 +27,11 @@ import Pieces.Rook;
 public class Board extends JPanel implements MouseListener {
     private static final Dimension FRA_DIMENSION = new Dimension((Tag.IMAGE_WIDTH + 10) * Tag.SIZE_MAX, (Tag.IMAGE_HEIGHT + 10) * Tag.SIZE_MAX);
 
+    private boolean saved;
     private Color turn;
     private GameGUI gameGUI;
     private Position[][] gameBoard;
 
-    private int selectedX;
-    private int selectedY;
     private Piece selectedPiece;
     private Piece enPassantPawn;
     private Piece promotionPiece;
@@ -49,21 +48,44 @@ public class Board extends JPanel implements MouseListener {
         this.initializePiecesToBoard();
         this.setPanelDimensions(FRA_DIMENSION);
         this.setBorder(BorderFactory.createEmptyBorder());
-        System.out.println(FRA_DIMENSION.getWidth() + ", " + FRA_DIMENSION.getHeight());
         this.setTurn(Color.WHITE);
         enPassantPawn = null;
         promotionPiece = null;
+        this.saved = true;
     }
 
-    //creates a copy of board to check each move for mate/checkmate
-    public Board(Position[][] original, Color turn, Piece enPassant)
+    //string[] pieces is copy of board, can be used to copy from save or create test instance to test check after a move
+    //pieces is missing names if it is a test case (added to string in game gui) so I need to check if this is a test case to know what index info is at
+    public Board(String[] pieces, boolean tester)
     {
-        //since this is just to see if player moves themself into check, no need to display so no need to initialize GUI or mouse click
-        this.turn = turn;
+        int turnIndex = (tester) ? 0 : 2; //see comments above
+        if (pieces[turnIndex].equals("white"))
+            this.setTurn(Color.WHITE);
+        else
+            this.setTurn(Color.BLACK);
         this.setGameBoard(new Position[Tag.SIZE_MAX][Tag.SIZE_MAX]);
+        setLayout(new GridLayout(Tag.SIZE_MAX, Tag.SIZE_MAX, 0, 0));
+        System.out.println("Set layout");
         createNewBoardPositions();
-        initializeCopy(original);
-        copyEnPassant(enPassant);
+        System.out.println("Created board positions");
+        initializePiecesToBoard(pieces, tester);
+        System.out.println("Black: " + bKing.getPosition().getPosY() + ", " + bKing.getPosition().getPosX());
+        System.out.println("White: " + wKing.getPosition().getPosY() + ", " + wKing.getPosition().getPosX());
+        if (this.turn == Color.WHITE)
+            System.out.println("White turn constructor");
+        else
+            System.out.println("Black turn constructor");
+    }
+
+    public Board(GameGUI gui, String[] pieces)
+    {
+        this(pieces, false);
+        System.out.println("Through copy constructor");
+        this.setGameGUI(gui);
+        this.addMouseListener(this);
+        this.setPanelDimensions(FRA_DIMENSION);
+        this.setBorder(BorderFactory.createEmptyBorder());
+        this.saved = true;
     }
 
     /***
@@ -115,54 +137,90 @@ public class Board extends JPanel implements MouseListener {
         }
     }
 
-    private void initializeCopy(Position[][] original)
+    //initializes pieces to copy original board
+    private void initializePiecesToBoard(String[] pieces, boolean tester)
     {
-        for (int y = 0; y < Tag.SIZE_MAX; y++)
+        //names are added to string save in GameGUI so a tester (test check instead of prev. saved game) will not have player names so it needs to start at different index
+        for (int i = (tester) ? 1 : 3; i < pieces.length - 1; i++) //0 and 1 are player names, 2 is turn, last spot is en passant
         {
-            for (int x = 0; x < Tag.SIZE_MAX; x++)
+            String current = pieces[i];
+            System.out.println(current);
+            int y = current.charAt(4) - '0';
+            int x = current.charAt(5) - '0';
+            if (current.charAt(3) == 'b') //black
             {
-                if (!original[y][x].isFree())
+                System.out.println("adding black " + current.charAt(1));
+                if (current.charAt(1) == 'K') //king
                 {
-                    Piece toCopy = original[y][x].getPiece();
-                    if (toCopy.getSide() == Color.BLACK)
-                    {
-                        if (toCopy.name() == "(K)") //king
-                        {
-                            gameBoard[y][x].setPiece(new King(Tag.Color.BLACK, gameBoard[y][x], Tag.BLACK_KING));
-                            bKing = gameBoard[y][x].getPiece();
-                        }
-                        else if (toCopy.name() == "(Q)") //queen
-                            gameBoard[y][x].setPiece(new Queen(Tag.Color.BLACK, gameBoard[y][x], Tag.BLACK_QUEEN));
-                        else if (toCopy.name() == "(P)") //pawn
-                            gameBoard[y][x].setPiece(new Pawn(Tag.Color.BLACK, gameBoard[y][x], Tag.BLACK_PAWN));
-                        else if (toCopy.name() == "(N)") //knight
-                            gameBoard[y][x].setPiece(new Knight(Tag.Color.BLACK, gameBoard[y][x], Tag.BLACK_KNIGHT));
-                        else if (toCopy.name() == "(R)") //rook
-                            gameBoard[y][x].setPiece(new Rook(Tag.Color.BLACK, gameBoard[y][x], Tag.BLACK_ROOK));
-                        else //bishop
-                            gameBoard[y][x].setPiece(new Bishop(Tag.Color.BLACK, gameBoard[y][x], Tag.BLACK_BISHOP));
-                    }
-                    else //white
-                    {
-                        if (toCopy.name() == "(K)") //king
-                        {
-                            gameBoard[y][x].setPiece(new King(Tag.Color.WHITE, gameBoard[y][x], Tag.WHITE_KING));
-                            wKing = gameBoard[y][x].getPiece();
-                        }
-                        else if (toCopy.name() == "(Q)") //queen
-                            gameBoard[y][x].setPiece(new Queen(Tag.Color.WHITE, gameBoard[y][x], Tag.WHITE_QUEEN));
-                        else if (toCopy.name() == "(P)") //pawn
-                            gameBoard[y][x].setPiece(new Pawn(Tag.Color.WHITE, gameBoard[y][x], Tag.WHITE_PAWN));
-                        else if (toCopy.name() == "(N)") //knight
-                            gameBoard[y][x].setPiece(new Knight(Tag.Color.WHITE, gameBoard[y][x], Tag.WHITE_KNIGHT));
-                        else if (toCopy.name() == "(R)") //rook
-                            gameBoard[y][x].setPiece(new Rook(Tag.Color.WHITE, gameBoard[y][x], Tag.WHITE_ROOK));
-                        else //bishop
-                            gameBoard[y][x].setPiece(new Bishop(Tag.Color.WHITE, gameBoard[y][x], Tag.WHITE_BISHOP));
-                    }
+                    gameBoard[y][x].setPiece(new King(Tag.Color.BLACK, gameBoard[y][x], Tag.BLACK_KING));
+                    this.bKing = gameBoard[y][x].getPiece();
+                    if (current.charAt(6) == 't')
+                        gameBoard[y][x].getPiece().setMoved();
                 }
+                else if (current.charAt(1) == 'Q')
+                    gameBoard[y][x].setPiece(new Queen(Tag.Color.BLACK, gameBoard[y][x], Tag.BLACK_QUEEN));
+                else if (current.charAt(1) == 'P') //pawn
+                {
+                    gameBoard[y][x].setPiece(new Pawn(Tag.Color.BLACK, gameBoard[y][x], Tag.BLACK_PAWN));
+                    if (current.charAt(6) == 't')
+                        gameBoard[y][x].getPiece().setMoved();
+                }
+                else if (current.charAt(1) == 'N') //knight
+                    gameBoard[y][x].setPiece(new Knight(Tag.Color.BLACK, gameBoard[y][x], Tag.BLACK_KNIGHT));
+                else if (current.charAt(1) == 'R') //rook
+                {
+                    gameBoard[y][x].setPiece(new Rook(Tag.Color.BLACK, gameBoard[y][x], Tag.BLACK_ROOK));
+                    if (current.charAt(6) == 't')
+                        gameBoard[y][x].getPiece().setMoved();
+                }
+                else //bishop
+                    gameBoard[y][x].setPiece(new Bishop(Tag.Color.BLACK, gameBoard[y][x], Tag.BLACK_BISHOP));
+            }
+            else //white
+            {
+                System.out.println("adding white " + current.charAt(1));
+                if (current.charAt(1) == 'K') //king
+                {
+                    gameBoard[y][x].setPiece(new King(Tag.Color.WHITE, gameBoard[y][x], Tag.WHITE_KING));
+                    this.wKing = gameBoard[y][x].getPiece();
+                    if (current.charAt(6) == 't')
+                        gameBoard[y][x].getPiece().setMoved();
+                }
+                else if (current.charAt(1) == 'Q') //queen
+                    gameBoard[y][x].setPiece(new Queen(Tag.Color.WHITE, gameBoard[y][x], Tag.WHITE_QUEEN));
+                else if (current.charAt(1) == 'P') //pawn
+                {
+                    gameBoard[y][x].setPiece(new Pawn(Tag.Color.WHITE, gameBoard[y][x], Tag.WHITE_PAWN));
+                    if (current.charAt(6) == 't')
+                        gameBoard[y][x].getPiece().setMoved();
+                }
+                else if (current.charAt(1) == 'N') //knight
+                    gameBoard[y][x].setPiece(new Knight(Tag.Color.WHITE, gameBoard[y][x], Tag.WHITE_KNIGHT));
+                else if (current.charAt(1) == 'R') //rook
+                {
+                    gameBoard[y][x].setPiece(new Rook(Tag.Color.WHITE, gameBoard[y][x], Tag.WHITE_ROOK));
+                    if (current.charAt(6) == 't')
+                        gameBoard[y][x].getPiece().setMoved();
+                }
+                else //bishop
+                    gameBoard[y][x].setPiece(new Bishop(Tag.Color.WHITE, gameBoard[y][x], Tag.WHITE_BISHOP));
             }
         }
+        //en passant is marked simply by just position
+        String enPassant = pieces[pieces.length - 1];
+        if (enPassant.equals("null"))
+            enPassantPawn = null;
+        else
+        {
+            int y = enPassant.charAt(0) - '0';
+            int x = enPassant.charAt(1) - '0';
+            enPassantPawn = gameBoard[y][x].getPiece();
+            if (y == 3)
+                gameBoard[2][x].setEnPassant(true);
+            else //y == 4
+                gameBoard[5][x].setEnPassant(true);
+        }
+        terminalPrint();
     }
     
     private void setPanelDimensions(Dimension size){
@@ -176,9 +234,8 @@ public class Board extends JPanel implements MouseListener {
     public void setGameBoard(Position[][] board) { this.gameBoard = board; }
     public void setGameGUI(GameGUI gui) { this.gameGUI = gui; }
     public void setTurn(Color side) { this.turn = side; }
+    public void setSaved() { this.saved = true;}
     public void setSelectedPiece(Piece selected) { this.selectedPiece = selected; }
-    public void setSelectedX(int selected) { this.selectedX = selected; }
-    public void setSelectedY(int selected) { this.selectedY = selected; }
     public void setSelectedMovablePositions(Piece piece) { this.selectedMovablePositions = piece.getLegalMoves(this.gameBoard); }
     public void nextTurn() 
     { 
@@ -198,12 +255,47 @@ public class Board extends JPanel implements MouseListener {
 
     // getter
     public Color getTurn() { return this.turn; }
+    public boolean getSaved() { return this.saved; }
     public GameGUI getGameGUI() { return this.gameGUI; }
-    public int getSelectedX() { return this.selectedX; }
-    public int getSelectedY() { return this.selectedY; }
     public Position[][] getGameBoard() { return this.gameBoard; }
     public Piece getSelectedPiece() { return this.selectedPiece; }
     public List<Position> getMovablePositions() { return this.selectedMovablePositions; }
+
+    //called by save button in gameGUI, saves all relevant info as a single string
+    public String asString()
+    {
+        String save = "";
+        if (turn == Color.OVER)
+            return save;
+        if (turn == Color.WHITE)
+            save += "white";
+        else
+            save += "black";
+        for (int y = 0; y < Tag.SIZE_MAX; y++)
+        {
+            for (int x = 0; x < Tag.SIZE_MAX; x++)
+            {
+                if (!gameBoard[y][x].isFree())
+                {
+                    save += " " + gameBoard[y][x].getPiece().name();
+                    if (gameBoard[y][x].getPiece().getSide() == Color.WHITE)
+                        save += "w";
+                    else
+                        save += "b";
+                    save += String.valueOf(y) + String.valueOf(x);
+                    if (gameBoard[y][x].getPiece().getMoved())
+                        save += "t";
+                    else
+                        save += "f";
+                }
+            }
+        }
+        if (enPassantPawn == null)
+            save += " null";
+        else
+            save += " " + String.valueOf(enPassantPawn.getPosition().getPosY()) + String.valueOf(enPassantPawn.getPosition().getPosX());
+        return save;
+    }
 
     private void highlighedLegalPositions(List<Position> positions) {
         for(int i = 0; i < positions.size(); i++)
@@ -217,7 +309,7 @@ public class Board extends JPanel implements MouseListener {
         repaint();
     }
 
-    private void checkHighlight()
+    public void checkHighlight()
     {
         if (turn == Color.WHITE)
         {
@@ -292,21 +384,6 @@ public class Board extends JPanel implements MouseListener {
         int x = piece.getPosition().getPosX();
         gameBoard[y][x].setEnPassant(true);
         enPassantPawn = piece;
-    }
-
-    private void copyEnPassant(Piece enPassant) //called by second constructor
-    {
-        if (enPassant == null)
-            enPassantPawn = null;
-        else
-        {
-            int y = (enPassant.getSide() == Color.WHITE) ? 5 : 2;
-            int x = enPassant.getPosition().getPosX();
-            gameBoard[y][x].setEnPassant(true);
-            //find copied pawn in same spot on gameBoard and assign enPassantPawn to it
-            //y is position another pawn can diagonally take to capture en passant pawn, getY() is pos of en passant pawn itself
-            enPassantPawn = gameBoard[enPassant.getPosition().getPosY()][x].getPiece();
-        }
     }
 
     private void castle(Piece piece)
@@ -540,6 +617,7 @@ public class Board extends JPanel implements MouseListener {
         wKing.getPosition().setCheck(false);
         bKing.getPosition().setCheck(false);
         selectedPiece.move(chosen);
+        saved = false;
     }
 
     //called using actual board, creates copy of board without GUI to make sure move is legal before doing it
@@ -550,7 +628,7 @@ public class Board extends JPanel implements MouseListener {
         int selectedX = selected.getPosition().getPosX();
         int chosenY = chosen.getPosY();
         int chosenX = chosen.getPosX();
-        Board tester = new Board(gameBoard, turn, enPassantPawn);
+        Board tester = new Board(this.asString().split(" "), true);
         if (!tester.testCheck(selectedY, selectedX, chosenY, chosenX))
         {
             System.out.println("Legal move");
@@ -629,6 +707,7 @@ public class Board extends JPanel implements MouseListener {
         }
         //if looking to take pawn, check if pawn can be taken by en passant
         //when testing for checkmate, see if pawns on same y, send to en passant position
+        /*
         if (initial.getPiece() != null && enPassantPawn != null && initial.getPiece() == enPassantPawn)
         {
             int y = initial.getPosY(); //pawn attacking with en passant starts at same y, left or right one from pawn it attacks
@@ -647,6 +726,17 @@ public class Board extends JPanel implements MouseListener {
                 }
             }
         }
+        */
+        if (color == Color.WHITE)
+            System.out.println("Checked white");
+        else
+            System.out.println("Checked black");
+        if (this.turn == Color.WHITE)
+            System.out.println("White turn");
+        else
+            System.out.println("Black turn");
+        for (Piece i : pieces)
+            System.out.println(i.name() + ",    " + i.getPosition().getPosX() + ", " + i.getPosition().getPosY());
         return pieces;
     }
 

@@ -1,5 +1,7 @@
 package GUI;
 
+import java.util.List;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Color;
@@ -7,7 +9,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -15,6 +16,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import BoardComponents.Board;
 import BoardComponents.Promotion;
@@ -35,16 +40,50 @@ public class GameGUI {
     public GameGUI(MainGUI main, SpeechRecognizerMain speech, String playerOne, String playerTwo) { 
         this.main = main;
         this.speech = speech;
-        playerOneName = playerOne;
-        playerTwoName = playerTwo;
+        if (playerOne.length() == 0)
+            playerOneName = "white";
+        else
+            playerOneName = playerOne;
+        if (playerTwo.length() == 0)
+            playerTwoName = "black";
+        else
+            playerTwoName = playerTwo;
         initializeGameGUI();
+        speech.updateGame(boardGUI);
+    }
+
+    public GameGUI(MainGUI main, String[] pieces, SpeechRecognizerMain speech, String playerOne, String playerTwo)
+    {
+        System.out.println("Load GUI");
+        this.main = main;
+        this.speech = speech;
+        if (playerOne.length() == 0)
+            playerOneName = "white";
+        else
+            playerOneName = playerOne;
+        if (playerTwo.length() == 0)
+            playerTwoName = "black";
+        else
+            playerTwoName = playerTwo;
+        initializeGameGUI(pieces);
         speech.updateGame(boardGUI);
     }
     
     private void initializeGameGUI() {
         createFrame();
         addButtons();
-        createBoardGUI();
+        this.boardGUI = new Board(this);
+        createBoardGUIFrame();
+        setSize();
+        this.gameGUI.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+
+    private void initializeGameGUI(String[] pieces) {
+        createFrame();
+        addButtons();
+        this.boardGUI = new Board(this, pieces);
+        createBoardGUIFrame();
+        this.boardGUI.checkHighlight(); //has to be called after createBoardGUIFrame because create instantiates currentTurn JTextArea, cannot append if currentTurn is null
         setSize();
         this.gameGUI.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
@@ -56,8 +95,8 @@ public class GameGUI {
         this.gameGUI.getContentPane().setBackground(new Color(43, 29, 19));
     }
 
-    private void createBoardGUI() {
-        this.boardGUI = new Board(this);
+    private void createBoardGUIFrame() {
+        System.out.println("Called guiframe");
         int borderPanelSize = 30; //width of panels around board
         JPanel boardPanel = new JPanel(new BorderLayout(0, 0));
         //create panels to create "frame" around board
@@ -107,18 +146,22 @@ public class GameGUI {
         buttons.setLayout(new GridLayout(1, 3, 10, 10));
 
         final JButton speak = new JButton("Speak");
+        final JButton save = new JButton ("Save");
         final JButton mainMenu = new JButton("Main Menu");
         final JButton quite = new JButton("Quit");
         
         speak.setBackground(new Color(249, 184, 141));
+        save.setBackground(new Color(249, 184, 141));
         quite.setBackground(new Color(249, 184, 141));
         mainMenu.setBackground(new Color(249, 184, 141));
         
         speak.addActionListener((e) -> speakItemActionPerformed(e));
+        save.addActionListener((e) -> saveItemActionPerformed(e));
         quite.addActionListener((e) -> quitItemActionPerformed(e));
         mainMenu.addActionListener((e) ->  mainMenuItemActionPerformed(e));
         
         buttons.add(speak);
+        buttons.add(save);
         buttons.add(mainMenu);
         buttons.add(quite);
         gameGUI.add(buttons, BorderLayout.BEFORE_FIRST_LINE);
@@ -136,24 +179,40 @@ public class GameGUI {
         }
         speech.stopIgnoreSpeechRecognitionResults();
     }
-    
-    private void quitItemActionPerformed(ActionEvent e) {
-        int quit = JOptionPane.showConfirmDialog(gameGUI, "Are you sure you want to quit?", "Quit", JOptionPane.OK_CANCEL_OPTION);
-        if(quit == JOptionPane.OK_OPTION) 
-        {
-            gameGUI.dispose();
-            main.exit();
+
+    private void saveItemActionPerformed(ActionEvent e) {
+        //System.out.println(System.getProperty("user.dir"));
+        try {
+            FileWriter writer = new FileWriter("./savedgames/Chess.txt", false);
+            writer.write(playerOneName + " " + playerTwoName + " " + boardGUI.asString());
+            writer.close();
+            boardGUI.setSaved();
+        }
+        catch (Exception error) {
+            error.getStackTrace();
         }
     }
 
     private void mainMenuItemActionPerformed(ActionEvent e) {
-        int quit = JOptionPane.showConfirmDialog(gameGUI,
-        "Are you sure you want to go to main menu?" + 
-        "\nThis game session has not been saved.",
-        "Main Menu", JOptionPane.OK_CANCEL_OPTION);
+        String message = "Are you sure you want to return to the main menu?";
+        if (!boardGUI.getSaved())
+            message += "\nThis game has not been saved.";
+        int quit = JOptionPane.showConfirmDialog(gameGUI, message, "Main Menu", JOptionPane.OK_CANCEL_OPTION);
         if(quit == JOptionPane.OK_OPTION) {
             gameGUI.dispose();
             main.mainMenu();
+        }
+    }
+    
+    private void quitItemActionPerformed(ActionEvent e) {
+        String message = "Are you sure you want to quit?";
+        if (!boardGUI.getSaved())
+            message += "\nThis game has not been saved.";
+        int quit = JOptionPane.showConfirmDialog(gameGUI, message, "Quit", JOptionPane.OK_CANCEL_OPTION);
+        if(quit == JOptionPane.OK_OPTION) 
+        {
+            gameGUI.dispose();
+            main.exit();
         }
     }
 

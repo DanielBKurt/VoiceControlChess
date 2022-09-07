@@ -128,8 +128,6 @@ public class Position extends JComponent {
      // method to draw position to screen and piece
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        System.out.println("Repainting: " + this.getX() + ", " + this.getY());
         // draw light or dark position
         if(this.ligherShade) { 
             if(highLight) g.setColor(LIGHT_HIGHLIGHT);
@@ -152,14 +150,7 @@ public class Position extends JComponent {
         // display piece if it is at current position
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
         if(this.piece != null && displayPiece)
-        {
-            System.out.println("Calling piece draw");
             piece.draw(g);
-        }
-        if (this.piece == null)
-            System.out.println("Null");
-        if (!displayPiece)
-            System.out.println("Dont display");
         if (this.posY == 7)
         {
             //g.setColor(Color.BLACK);

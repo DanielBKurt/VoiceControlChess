@@ -15,6 +15,13 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import java.util.List;
+import java.util.Arrays;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 import Information.Tag;
 import SpeechRecognizer.SpeechRecognizerMain;
 
@@ -96,15 +103,19 @@ public class MainGUI implements Runnable {
     private void addButtons() {
         Box buttonBox = Box.createHorizontalBox();
         final JButton play = new JButton("Play");
+        final JButton load = new JButton("Load");
         final JButton help = new JButton("Help");
         final JButton quit = new JButton("Quit");
         play.setBackground(new Color(251, 252, 247));
+        load.setBackground(new Color(251, 252, 247));
         help.setBackground(new Color(251, 252, 247));
         quit.setBackground(new Color(251, 252, 247));
         play.addActionListener(e -> playItemActionPerformed(e));
+        load.addActionListener(e -> loadItemActionPerformed(e));
         help.addActionListener(e -> helpItemActionPerformed(e));
         quit.addActionListener(e -> quitItemActionPerformed(e));
         buttonBox.add(play);
+        buttonBox.add(load);
         buttonBox.add(help);
         buttonBox.add(quit);
         mainGUIComponents.add(buttonBox);
@@ -120,6 +131,23 @@ public class MainGUI implements Runnable {
         System.out.println("Creating new game");
         new GameGUI(this, speech, whitePlayerTextField.getText(), blackPlayerTextField.getText());
         mainGUI.setVisible(false);
+    }
+
+    private void loadItemActionPerformed(ActionEvent e) {
+        try {
+                File saveFile = new File("./savedgames/Chess.txt");
+                Scanner myReader = new Scanner(saveFile);
+                String savedGame = myReader.nextLine();
+                //System.out.println("Saved game: " + savedGame);
+                String[] pieces = savedGame.split(" "); //list of words separated by spaces
+                myReader.close();
+                new GameGUI(this, pieces, speech, pieces[0], pieces[1]);
+                mainGUI.setVisible(false);
+            
+          } catch (FileNotFoundException error) {
+            System.out.println("No save found");
+            error.printStackTrace();
+          }
     }
 
     private void helpItemActionPerformed(ActionEvent e) {
