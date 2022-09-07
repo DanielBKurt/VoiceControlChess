@@ -1,16 +1,20 @@
 package GUI;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.Font;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JTextArea;
 
 import BoardComponents.Board;
 import BoardComponents.Promotion;
@@ -20,6 +24,8 @@ import SpeechRecognizer.SpeechRecognizerMain;
 public class GameGUI {
     private String playerOneName;
     private String playerTwoName;
+    private JTextArea speechOutput;
+    private JTextArea currentTurn;
     private JFrame gameGUI;
     private JFrame promo;
     private Board boardGUI;
@@ -38,49 +44,55 @@ public class GameGUI {
     private void initializeGameGUI() {
         createFrame();
         addButtons();
-        //addPlayerOne();
-        creatBoardGUI();
-        //addPlayerTwo();
+        createBoardGUI();
         setSize();
         this.gameGUI.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    }
-
-    private void addPlayerOne()
-    {
-        JPanel panel = new JPanel();
-        JLabel label = new JLabel(playerOneName);
-        panel.add(label);
-        gameGUI.add(panel, BorderLayout.NORTH);
-    }
-    
-    private void addPlayerTwo()
-    {
-        JPanel panel = new JPanel();
-        JLabel label = new JLabel(playerTwoName);
-        panel.add(label);
-        gameGUI.add(panel, BorderLayout.SOUTH);
     }
 
     private void createFrame() {
         gameGUI = new JFrame("Voice Controlled Chess");
         gameGUI.setIconImage(new ImageIcon(Tag.LAZY_ICON).getImage());
-        this.gameGUI.setLayout(new BorderLayout(0, 20));
+        this.gameGUI.setLayout(new BorderLayout(0, 0));
         this.gameGUI.getContentPane().setBackground(new Color(43, 29, 19));
     }
 
-    private void creatBoardGUI() {
+    private void createBoardGUI() {
         this.boardGUI = new Board(this);
-        /*
-        JPanel panel = new JPanel();
-        panel.add(boardGUI, BorderLayout.CENTER);
-        JLabel label1 = new JLabel(playerOneName);
-        JLabel label2 = new JLabel(playerTwoName);
-        panel.add(label2, BorderLayout.NORTH);
-        panel.add(label1, BorderLayout.SOUTH);
-        */
-        this.gameGUI.add(boardGUI, BorderLayout.CENTER);
+        int borderPanelSize = 30; //width of panels around board
+        JPanel boardPanel = new JPanel(new BorderLayout(0, 0));
+        //create panels to create "frame" around board
+        JPanel top = new JPanel();
+        JPanel left = new JPanel();
+        JPanel right = new JPanel();
+        JPanel bottom = new JPanel();
+        top.setBackground(new Color(43, 29, 19));
+        left.setBackground(new Color(43, 29, 19));
+        right.setBackground(new Color(43, 29, 19));
+        bottom.setBackground(new Color(43, 29, 19));
+        //preferred size will keep borderPanelSize as width or length and change the other to match boardGUI size
+        top.setPreferredSize(new Dimension(borderPanelSize, borderPanelSize));
+        left.setPreferredSize(new Dimension(borderPanelSize, borderPanelSize));
+        right.setPreferredSize(new Dimension(borderPanelSize, borderPanelSize));
+        bottom.setPreferredSize(new Dimension(borderPanelSize, borderPanelSize));
+        //add text output on bottom and top
+        this.currentTurn = new JTextArea("Current turn: " + playerOneName); //default to white turn
+        currentTurn.setFont(new Font("Monospaced", Font.BOLD, 20));
+        currentTurn.setBackground(new Color(43, 29, 19));
+        currentTurn.setForeground(Color.WHITE);
+        bottom.add(currentTurn, BorderLayout.NORTH);
+        this.speechOutput = new JTextArea();
+        speechOutput.setFont(new Font("Monospaced", Font.BOLD, 20));
+        speechOutput.setBackground(new Color(43, 29, 19));
+        speechOutput.setForeground(Color.WHITE);
+        top.add(speechOutput, BorderLayout.NORTH);
+        boardPanel.add(top, BorderLayout.NORTH);
+        boardPanel.add(left, BorderLayout.WEST);
+        boardPanel.add(right, BorderLayout.EAST);
+        boardPanel.add(bottom, BorderLayout.SOUTH);
+        boardPanel.add(boardGUI, BorderLayout.CENTER);
+        this.gameGUI.add(boardPanel, BorderLayout.CENTER);
     }
-
+    
     private void setSize() {
         this.gameGUI.setSize(gameGUI.getPreferredSize());
         this.gameGUI.setMinimumSize(gameGUI.getPreferredSize());
@@ -109,9 +121,8 @@ public class GameGUI {
         buttons.add(speak);
         buttons.add(mainMenu);
         buttons.add(quite);
-        //JLabel label = new JLabel(playerOneName);
-        //buttons.add(label, BorderLayout.SOUTH);
         gameGUI.add(buttons, BorderLayout.BEFORE_FIRST_LINE);
+        System.out.println(buttons.getWidth() + ", " + buttons.getHeight());
     }
 
     private void speakItemActionPerformed(ActionEvent e) {
@@ -144,6 +155,39 @@ public class GameGUI {
             gameGUI.dispose();
             main.mainMenu();
         }
+    }
+
+    public void updateSpeechOutput(String speech)
+    {
+        String replace;
+        if (speech.equals("<unk>"))
+            replace = "Sorry, I did not understand what you said, please try again";
+        else
+            replace = "I heard: " + speech;
+        speechOutput.replaceRange(replace, 0, speechOutput.getText().length());
+    }
+
+    public void clearSpeechOutput()
+    {
+        if (speechOutput.getText().length() != 0)
+            speechOutput.replaceRange("", 0, speechOutput.getText().length());
+    }
+
+    //call after every turn change
+    public void updateCurrentTurn(Tag.Color color)
+    {
+        String replace = "Current turn: ";
+        if (color == Tag.Color.WHITE)
+            replace += playerOneName;
+        else //black
+            replace += playerTwoName;
+        currentTurn.replaceRange(replace, 0, currentTurn.getText().length());
+    }
+
+    //changes bottom string below board to "Current turn: name (in check)"
+    public void updateTurnCheck()
+    {
+        currentTurn.append(" (in check)");
     }
 
     public void promotionPopUp(Tag.Color color)

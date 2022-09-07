@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.lang.Math;
 
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 import GUI.GameGUI;
@@ -47,6 +48,8 @@ public class Board extends JPanel implements MouseListener {
         this.createNewBoardPositions();
         this.initializePiecesToBoard();
         this.setPanelDimensions(FRA_DIMENSION);
+        this.setBorder(BorderFactory.createEmptyBorder());
+        System.out.println(FRA_DIMENSION.getWidth() + ", " + FRA_DIMENSION.getHeight());
         this.setTurn(Color.WHITE);
         enPassantPawn = null;
         promotionPiece = null;
@@ -61,7 +64,6 @@ public class Board extends JPanel implements MouseListener {
         createNewBoardPositions();
         initializeCopy(original);
         copyEnPassant(enPassant);
-        //copy en passant position in, rewrite move
     }
 
     /***
@@ -180,10 +182,14 @@ public class Board extends JPanel implements MouseListener {
     public void setSelectedMovablePositions(Piece piece) { this.selectedMovablePositions = piece.getLegalMoves(this.gameBoard); }
     public void nextTurn() 
     { 
+        gameGUI.clearSpeechOutput();
         if (turn == Color.OVER)
             return;
         else
+        {
             turn = (this.turn == Color.BLACK) ? Color.WHITE : Color.BLACK;
+            gameGUI.updateCurrentTurn(turn);
+        }
         if (enPassantPawn != null && enPassantPawn.getSide() == this.turn) //en Passant is valid for only one move
             clearEnPassant(); //en passant for white pawn no longer valid once black moves
         checkHighlight();
@@ -198,16 +204,6 @@ public class Board extends JPanel implements MouseListener {
     public Position[][] getGameBoard() { return this.gameBoard; }
     public Piece getSelectedPiece() { return this.selectedPiece; }
     public List<Position> getMovablePositions() { return this.selectedMovablePositions; }
-
-    // display / draw
-    public void paintComponent(Graphics g) {
-        for (int i = 0; i < Tag.SIZE_MAX; i++) 
-            for (int j = 0; j < Tag.SIZE_MAX; j++) 
-                this.gameBoard[j][i].paintComponent(g);
-        if (selectedPiece != null)
-            if (selectedPiece.getSide() == turn) 
-                g.drawImage(selectedPiece.getImage(), selectedX, selectedY, null);
-    }
 
     private void highlighedLegalPositions(List<Position> positions) {
         for(int i = 0; i < positions.size(); i++)
@@ -234,7 +230,10 @@ public class Board extends JPanel implements MouseListener {
                     turn = Color.OVER;
                 }
                 else
+                {
                     wKing.getPosition().setCheck(true);
+                    gameGUI.updateTurnCheck();
+                }
             }
         }
         else //black
@@ -248,7 +247,10 @@ public class Board extends JPanel implements MouseListener {
                     turn = Color.OVER;
                 }
                 else
+                {
                     bKing.getPosition().setCheck(true);
+                    gameGUI.updateTurnCheck();
+                }
             }
         }
         repaint();
@@ -368,7 +370,8 @@ public class Board extends JPanel implements MouseListener {
     }
 
     @Override
-    public void mouseClicked(MouseEvent e) {        
+    public void mouseClicked(MouseEvent e) {     
+        gameGUI.clearSpeechOutput(); //dont leave output up if user decides to use mouse instead   
         Position clickedPosition = (Position) this.getComponentAt(new Point(e.getX(), e.getY()));
         if(e.getButton() == MouseEvent.BUTTON1 && selectedPiece == null) 
         {
@@ -386,6 +389,7 @@ public class Board extends JPanel implements MouseListener {
 
     public void speechCalled(String speechReceived)
     {
+        gameGUI.updateSpeechOutput(speechReceived);
     	if (speechReceived.equals("clear")) //say clear to unselect piece, clear because sphinx 4 cant understand unselect
     	{
     		deselectPiece();

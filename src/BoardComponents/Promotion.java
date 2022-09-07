@@ -59,12 +59,6 @@ public class Promotion extends JPanel implements MouseListener {
         pieces[0][3].setPiece(new Bishop(Tag.Color.BLACK, pieces[0][3], Tag.BLACK_BISHOP));
     }
 
-    public void paintComponent(Graphics g) {
-        for (int i = 0; i < 1; i++) 
-            for (int j = 0; j < 4; j++) 
-                this.pieces[i][j].paintComponent(g);
-    }
-
     private void setPanelDimensions(Dimension size){
         System.out.println("Setting dimensions: " + size.getWidth() + ", " + size.getHeight());
         this.setPreferredSize(size);

@@ -128,6 +128,7 @@ public class Position extends JComponent {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        System.out.println("Repainting: " + this.getX() + ", " + this.getY());
         // draw light or dark position
         if(this.ligherShade) { 
             if(highLight) g.setColor(LIGHT_HIGHLIGHT);
@@ -148,23 +149,30 @@ public class Position extends JComponent {
         else this.setBorder(BorderFactory.createEmptyBorder());
 
         // display piece if it is at current position
-        g.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-        if(this.piece != null && displayPiece) piece.draw(g);
+        g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        if(this.piece != null && displayPiece)
+        {
+            System.out.println("Calling piece draw");
+            piece.draw(g);
+        }
+        if (this.piece == null)
+            System.out.println("Null");
+        if (!displayPiece)
+            System.out.println("Dont display");
         if (this.posY == 7)
         {
-            //JLabel label = new JLabel(letters[this.posX]);
-            g.setColor(Color.BLACK);
-            g.setFont(g.getFont().deriveFont(23f));
-            g.drawString(letters[posX], 65, 74);
+            //g.setColor(Color.BLACK);
+            //g.setFont(g.getFont().deriveFont(23f));
+            //g.drawString(letters[posX], 65, 74);
             g.setColor(Color.GREEN);
             g.setFont(g.getFont().deriveFont(20f));
             g.drawString(letters[posX], 65, 74);
         }
         if (this.posX == 0 && !promotion)
         {
-            g.setColor(Color.BLACK);
-            g.setFont(g.getFont().deriveFont(23f));
-            g.drawString(numbers[7 - posY], 4, 22);
+            //g.setColor(Color.BLACK);
+            //g.setFont(g.getFont().deriveFont(23f));
+            //g.drawString(numbers[7 - posY], 4, 22);
             g.setColor(Color.GREEN);
             g.setFont(g.getFont().deriveFont(20f));
             g.drawString(numbers[7 - posY], 4, 22);
