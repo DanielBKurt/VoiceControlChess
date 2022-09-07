@@ -443,6 +443,7 @@ public class Board extends JPanel implements MouseListener {
             }
             turn = (side == Side.WHITE) ? Side.BLACK : Side.WHITE;
             repaint();
+            checkHighlight();
         }
         else
             System.out.println("null");

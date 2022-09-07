@@ -149,7 +149,7 @@ public class GameGUI {
     private void addButtons() {
         JPanel buttons = new JPanel();
         buttons.setBackground(Tag.ColorChoice[colorSet][6]);
-        buttons.setLayout(new GridLayout(1, 3, 10, 10));
+        buttons.setLayout(new GridLayout(1, 4, 10, 10));
 
         final JButton speak = new JButton("Speak");
         final JButton save = new JButton ("Save");

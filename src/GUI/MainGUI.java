@@ -1,10 +1,14 @@
 package GUI;
 
+import java.awt.Font;
+import java.awt.Dimension;
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -31,9 +35,11 @@ public class MainGUI implements Runnable {
     private static final int COLUMN_SPACE = 10;
 
     private JFrame mainGUI;
-    private Box mainGUIComponents;
+    private JPanel gameTitlePanel;
+    private JPanel playerPanel;
     private JPanel blackPlayerPanel;
     private JPanel whitePlayerPanel;
+    private JPanel buttons;
     private JTextField blackPlayerTextField;
     private JTextField whitePlayerTextField;
 
@@ -49,7 +55,6 @@ public class MainGUI implements Runnable {
 
     private void initializeMainMenu() {
         createFrame();
-        createBoxComponents();
         addGameTitle();
         addPlayerFields();
         addPlayerTextField();
@@ -61,19 +66,20 @@ public class MainGUI implements Runnable {
         mainGUI.setIconImage(new ImageIcon(Tag.LAZY_ICON).getImage());
         mainGUI.setSize(Tag.IMAGE_WIDTH * 8, Tag.IMAGE_HEIGHT * 8);
         mainGUI.setResizable(false);
+        mainGUI.setBackground(Tag.ColorChoice[1][6]);
         mainGUI.setLocationRelativeTo(null);
     }
 
-    private void createBoxComponents() {
-        mainGUIComponents = Box.createVerticalBox();
-        mainGUI.add(mainGUIComponents);
-    }
-
     private void addGameTitle() {
-        final JLabel gameTitleLabel = new JLabel(Tag.TITLE);
-        mainGUIComponents.add(Box.createVerticalStrut(VERTICAL_SPACE), BorderLayout.NORTH);
-        mainGUIComponents.add(gameTitleLabel);
-        mainGUIComponents.add(Box.createVerticalStrut(VERTICAL_SPACE));
+        gameTitlePanel = new JPanel();
+        JLabel title = new JLabel(Tag.TITLE);
+        title.setFont(new Font("Monospaced", Font.BOLD, 35));
+        title.setForeground(Tag.ColorChoice[1][9]);
+        title.setBackground(Tag.ColorChoice[1][6]);
+        gameTitlePanel.setBackground(Tag.ColorChoice[1][6]);
+        gameTitlePanel.setPreferredSize(new Dimension(600, 200));
+        gameTitlePanel.add(title);
+        mainGUI.add(gameTitlePanel, BorderLayout.NORTH);
     }
 
     private void addPlayerFields() {
@@ -82,11 +88,23 @@ public class MainGUI implements Runnable {
         // create new panel for player one
         whitePlayerPanel = new JPanel();
         whitePlayerPanel.add(whiteIcon);
-        mainGUIComponents.add(whitePlayerPanel);
+        whitePlayerPanel.setBackground(Tag.ColorChoice[1][6]);
         // create new panel for player two
         blackPlayerPanel = new JPanel();
-        blackPlayerPanel.add(blackIcon); 
-        mainGUIComponents.add(blackPlayerPanel, BorderLayout.EAST);
+        blackPlayerPanel.add(blackIcon);
+        blackPlayerPanel.setBackground(Tag.ColorChoice[1][6]);
+        //create panel that holds both player panels
+        playerPanel = new JPanel();
+        playerPanel.setBackground(Tag.ColorChoice[1][6]);
+        //third, empty panel to leave more space between player panel and buttons
+        JPanel buttonSpacer = new JPanel();
+        buttonSpacer.setBackground(Tag.ColorChoice[1][6]);
+        playerPanel.setLayout(new GridLayout(3, 1, 0, 0));
+        playerPanel.add(whitePlayerPanel);
+        playerPanel.add(blackPlayerPanel);
+        playerPanel.add(buttonSpacer);
+        //add panel holding both to frame
+        mainGUI.add(playerPanel, BorderLayout.CENTER);
     }
 
     private void addPlayerTextField() {
@@ -101,25 +119,30 @@ public class MainGUI implements Runnable {
     }
 
     private void addButtons() {
-        Box buttonBox = Box.createHorizontalBox();
+        buttons = new JPanel();
+        buttons.setBackground(Tag.ColorChoice[1][6]);
+        buttons.setLayout(new GridLayout(1, 4, 25, 10));
+        JPanel buttonWrapper = new JPanel();
+        buttonWrapper.setBackground(Tag.ColorChoice[1][6]);
+        buttonWrapper.setPreferredSize(new Dimension(600, 120));
         final JButton play = new JButton("Play");
         final JButton load = new JButton("Load");
         final JButton help = new JButton("Help");
         final JButton quit = new JButton("Quit");
-        play.setBackground(new Color(251, 252, 247));
-        load.setBackground(new Color(251, 252, 247));
-        help.setBackground(new Color(251, 252, 247));
-        quit.setBackground(new Color(251, 252, 247));
+        play.setBackground(Tag.ColorChoice[1][7]);
+        load.setBackground(Tag.ColorChoice[1][7]);
+        help.setBackground(Tag.ColorChoice[1][7]);
+        quit.setBackground(Tag.ColorChoice[1][7]);
         play.addActionListener(e -> playItemActionPerformed(e));
         load.addActionListener(e -> loadItemActionPerformed(e));
         help.addActionListener(e -> helpItemActionPerformed(e));
         quit.addActionListener(e -> quitItemActionPerformed(e));
-        buttonBox.add(play);
-        buttonBox.add(load);
-        buttonBox.add(help);
-        buttonBox.add(quit);
-        mainGUIComponents.add(buttonBox);
-        mainGUIComponents.add(Box.createGlue());
+        buttons.add(play);
+        buttons.add(load);
+        buttons.add(help);
+        buttons.add(quit);
+        buttonWrapper.add(buttons);
+        mainGUI.add(buttonWrapper, BorderLayout.SOUTH);
     }
 
     public void mainMenu()
@@ -151,9 +174,12 @@ public class MainGUI implements Runnable {
 
     private void helpItemActionPerformed(ActionEvent e) {
         JOptionPane.showMessageDialog(mainGUI,
-        "Input name for Player 1\n" +
-        "Input name for player 2\n" +
-        "Click new ''play'' to start playing!",
+        "Enter names for players or they will default to white and black\n" +
+        "Left click or press the speak button and say the name of the square to select\n" +
+        "Because the speech recognizer can mishear you, please say one square at a time\n" +
+        "For example, say 'alpha two' to select and then 'alpha four' to move that piece\n" +
+        "Right click or press the speak button and say 'clear' to unselect a piece\n" +
+        "Press play to start a new game or load to load a previously saved game",
         "Help Menu", JOptionPane.INFORMATION_MESSAGE);
     }
 
