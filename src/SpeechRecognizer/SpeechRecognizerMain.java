@@ -257,13 +257,14 @@ public class SpeechRecognizerMain {
 	public boolean getSpeechRecognizerThreadRunning() {
 		return speechRecognizerThreadRunning;
 	}
-	
 	/**
 	 * Main Method
 	 * 
 	 * @param args
 	 */
+	/*
 	public static void main(String[] args) {
 		new SpeechRecognizerMain();
 	}
+	*/
 }
