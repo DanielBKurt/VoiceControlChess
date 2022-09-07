@@ -68,6 +68,7 @@ public class Position extends JComponent {
     public boolean getDisplayPiece() { return this.displayPiece; }
     public boolean isFree() { return (this.piece == null); }
     public boolean getEnPassant() { return (this.enPassant); }
+    public boolean isCheck() { return this.check == true; }
 
     // setters
     public void setPosX(int x) { this.posX = x; }

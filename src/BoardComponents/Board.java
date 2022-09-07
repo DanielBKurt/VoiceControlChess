@@ -378,7 +378,13 @@ public class Board extends JPanel implements MouseListener {
             if(!clickedPosition.isFree() && clickedPosition.getPiece().getSide() == turn)
                 selectPiece(clickedPosition.getPiece());
             else
+            {
+                if (clickedPosition.isFree()) //no piece
+                    gameGUI.updateInvalidMove("No piece to select");
+                else //piece is wrong side
+                    gameGUI.updateInvalidMove("Piece is wrong side");
                 deselectPiece();
+            }
         } 
         else if (e.getButton() == MouseEvent.BUTTON1 && selectedPiece != null) 
             mover(clickedPosition);
@@ -431,7 +437,13 @@ public class Board extends JPanel implements MouseListener {
             if(!spokenPosition.isFree() && spokenPosition.getPiece().getSide() == turn)
                 selectPiece(spokenPosition.getPiece());
             else
+            {
+                if (spokenPosition.isFree())
+                    gameGUI.updateInvalidMove("No piece to select");
+                else
+                    gameGUI.updateInvalidMove("Piece is wrong side");
                 deselectPiece();
+            }
         } 
         else if (selectedPiece != null)
             mover(spokenPosition);
@@ -504,8 +516,19 @@ public class Board extends JPanel implements MouseListener {
                     deselectPiece();
                     nextTurn();
                 }
+                else //could not move, either tried to move yourself out of check or already in check and move did not escape it
+                {
+                    if (bKing.getPosition().isCheck() || wKing.getPosition().isCheck()) //already in check
+                        gameGUI.updateInvalidMove("Must escape check");
+                    else //moved yourself into check
+                        gameGUI.updateInvalidMove("Can not move yourself into check");
+                }
             }
+            else
+                gameGUI.updateInvalidMove("Invalid move for piece");
         }
+        else
+            gameGUI.updateInvalidMove("Can not attack own piece");
     }
 
     //helper method that unhighlights positions

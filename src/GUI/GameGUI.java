@@ -167,6 +167,15 @@ public class GameGUI {
         speechOutput.replaceRange(replace, 0, speechOutput.getText().length());
     }
 
+    //if move is invalid, add reason its invalid in paranthesis if there is already text there (speech recognition)
+    public void updateInvalidMove(String invalid)
+    {
+        if (speechOutput.getText().length() == 0)
+            speechOutput.append(invalid);
+        else
+            speechOutput.append(" (" + invalid + ")");
+    }
+
     public void clearSpeechOutput()
     {
         if (speechOutput.getText().length() != 0)
