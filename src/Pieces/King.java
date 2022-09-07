@@ -8,7 +8,7 @@ import Information.Tag.*;
 public class King extends Piece {
     private boolean moved;
 
-    public King(Color side, Position start, String imageFileName) {
+    public King(Side side, Position start, String imageFileName) {
         super(side, start, imageFileName);
         this.moved = false;
     }

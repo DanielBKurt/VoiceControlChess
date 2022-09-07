@@ -1,14 +1,19 @@
 package Information;
 
+import java.awt.Color;
+
 public class Tag {
-    /**
-     * Not to confuse with java.awt.Color, this Color
-     * is an enum helping to determine the side of 
-     * the player and pieces. The two possible choice 
-     * of the enum is BLACK and WHITE.
-     */
-    public static enum Color { BLACK, WHITE, OVER }
+    // renamed Color enum to Side to make it less confusing with 2D color array
+    public static enum Side { BLACK, WHITE, PAUSE, OVER }
     public static enum Status { ACTIVE, CHECK, CHECKMATE, STAKEMATE, SURRENDER }
+
+    // choices for board/general UI colors, each index corresponds to specific spot in UI
+    //in order: brown, gray, green layouts
+    //dark square, light square, dark highlighted square, light highlighted square, selected color, check/checkmate color, frame color, button color, text on squares, text output on frame of board
+    public static Color[][] ColorChoice = {
+        {new Color(89, 32, 9), new Color(193, 142, 107), new Color(128, 56, 26), new Color(235, 189, 158), new Color(250, 147, 44), new Color(196, 0, 33), new Color(43, 29, 19), new Color(249, 184, 141), Color.GREEN, Color.WHITE},
+        {new Color(96, 96, 96), new Color(160, 160, 160), new Color(64, 64, 64), new Color(192, 192, 192), new Color(250, 147, 44), new Color(196, 0, 33), new Color(32, 32, 32), new Color(175, 175, 175), new Color(34, 27, 252), Color.WHITE},
+        {new Color(130, 176, 130), new Color(209, 230, 216), new Color(91, 146, 91), new Color(234, 240, 236), new Color(250, 147, 44), new Color(196, 0, 33), new Color(8, 82, 11), new Color(211, 236, 212), new Color(102, 40, 14), Color.WHITE}};
 
     // image size
     public static final int IMAGE_WIDTH = 75;

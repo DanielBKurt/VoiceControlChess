@@ -11,15 +11,15 @@ import javax.imageio.ImageIO;
 
 import BoardComponents.Position;
 import Information.Tag;
-import Information.Tag.Color;
+import Information.Tag.Side;
 
 public abstract class Piece {
     private boolean alive;
-    private Color side;
+    private Side side;
     private Position position;
     private BufferedImage image;
 
-    public Piece(Color side, Position start, String imageFileName) {
+    public Piece(Side side, Position start, String imageFileName) {
         setAlive();
         setSide(side);
         setPosition(start);
@@ -29,7 +29,7 @@ public abstract class Piece {
     // setters
     public void setAlive() { this.alive = true; }
     public void setDead() { this.alive = false; }
-    public void setSide(Color side) { this.side = side; }
+    public void setSide(Side side) { this.side = side; }
     public void setPosition(Position position) { this.position = position; }
     
     public void setImage(String imageFileName) { 
@@ -44,7 +44,7 @@ public abstract class Piece {
     }
 
     // getters
-    public Color getSide() { return this.side; }
+    public Side getSide() { return this.side; }
     public boolean isAlive() { return this.alive == true; }
     public boolean isDead() { return this.alive == false; }
     public Position getPosition() { return this.position; }

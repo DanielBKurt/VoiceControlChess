@@ -3,10 +3,10 @@ package Pieces;
 import java.util.ArrayList;
 
 import BoardComponents.Position;
-import Information.Tag.Color;
+import Information.Tag.Side;
 
 public class Knight extends Piece {
-    public Knight(Color side, Position start, String imageFileName) { super(side, start, imageFileName); }
+    public Knight(Side side, Position start, String imageFileName) { super(side, start, imageFileName); }
 
     @Override
     public ArrayList<Position> getLegalMoves(Position[][] gameBoard) {

@@ -3,10 +3,10 @@ package Pieces;
 import java.util.ArrayList;
 
 import BoardComponents.Position;
-import Information.Tag.*;
+import Information.Tag.Side;
 
 public class Queen extends Piece {
-    public Queen(Color side, Position start, String imageFileName) { 
+    public Queen(Side side, Position start, String imageFileName) { 
         super(side, start, imageFileName);
     }
 

@@ -3,12 +3,12 @@ package Pieces;
 import java.util.ArrayList;
 
 import BoardComponents.Position;
-import Information.Tag.Color;
+import Information.Tag.Side;
 
 public class Rook extends Piece {
     private boolean moved;
     
-    public Rook(Color side, Position start, String imageFileName) {
+    public Rook(Side side, Position start, String imageFileName) {
         super(side, start, imageFileName);
         this.moved = false;
     }

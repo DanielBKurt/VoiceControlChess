@@ -7,32 +7,18 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
+import Information.Tag;
+
 import Pieces.Piece;
 
 public class Position extends JComponent {
-    /*
-    old colorset
-    private static final Color GEYSER = new Color(212, 219, 225);
-    private static final Color SHADE_BORDER =  new Color(252, 0, 0);
-    private static final Color ECRU_WHITE = new Color(251, 252, 247);
-    private static final Color SHUTTLE_GRAY = new Color(89, 96, 112);
-    private static final Color LIGHT_BORDER = new Color(248, 207, 168);
-    private static final Color ATHS_SPECIAL = new Color(234, 240, 216);
-    */
-
-    //light and dark brown
-    public static final Color DARK_BROWN = new Color(89, 32, 9);
-    public static final Color LIGHT_BROWN = new Color(193, 142, 107);
-    public static final Color DARK_HIGHLIGHT = new Color(128, 56, 26);
-    public static final Color LIGHT_HIGHLIGHT = new Color(235, 189, 158);
+    //combined for border of legal moves
     public static final Color DARK_BORDER = new Color(223, 213, 206);
     public static final Color LIGHT_BORDER = new Color(68, 44, 27);
-    public static final Color YELLOW = new Color(220, 215, 61);
-    public static final Color ORANGE = new Color(250, 147, 44);
-    public static final Color RED = new Color(196, 0, 33);
 
     private int posX;
     private int posY;
+    private int colorSet;
     private Piece piece;
     private boolean highLight;
     private boolean ligherShade;
@@ -45,9 +31,10 @@ public class Position extends JComponent {
     private String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H"};
     private String[] numbers = {"1", "2", "3", "4", "5", "6", "7", "8"};
 
-    public Position(int x, int y, boolean light, boolean promotion) {
+    public Position(int x, int y, boolean light, boolean promotion, int colorSet) {
         setPosX(x);
         setPosY(y);
+        this.colorSet = colorSet;
         setShade(light);
         setHighLight(false);
         setDisplayPiece(false);
@@ -130,17 +117,17 @@ public class Position extends JComponent {
         super.paintComponent(g);
         // draw light or dark position
         if(this.ligherShade) { 
-            if(highLight) g.setColor(LIGHT_HIGHLIGHT);
-            else if (selected) g.setColor(blend(LIGHT_BROWN, ORANGE, 0.3f));
-            else if (check) g.setColor(blend(LIGHT_BROWN, RED, 0.45f));
-            else if (checkmate) g.setColor(RED);
-            else g.setColor(LIGHT_BROWN);
+            if(highLight) g.setColor(Tag.ColorChoice[colorSet][3]);
+            else if (selected) g.setColor(blend(Tag.ColorChoice[colorSet][1], Tag.ColorChoice[colorSet][4], 0.3f));
+            else if (check) g.setColor(blend(Tag.ColorChoice[colorSet][1], Tag.ColorChoice[colorSet][5], 0.45f));
+            else if (checkmate) g.setColor(Tag.ColorChoice[colorSet][5]);
+            else g.setColor(Tag.ColorChoice[colorSet][1]);
         } else {
-            if(highLight) g.setColor(DARK_HIGHLIGHT);
-            else if (selected) g.setColor(blend(DARK_BROWN, ORANGE, 0.3f));
-            else if (check) g.setColor(blend(DARK_BROWN, RED, 0.3f));
-            else if (checkmate) g.setColor(RED);
-            else g.setColor(DARK_BROWN);
+            if(highLight) g.setColor(Tag.ColorChoice[colorSet][2]);
+            else if (selected) g.setColor(blend(Tag.ColorChoice[colorSet][0], Tag.ColorChoice[colorSet][4], 0.3f));
+            else if (check) g.setColor(blend(Tag.ColorChoice[colorSet][0], Tag.ColorChoice[colorSet][5], 0.3f));
+            else if (checkmate) g.setColor(Tag.ColorChoice[colorSet][5]);
+            else g.setColor(Tag.ColorChoice[colorSet][0]);
         }
 
         // highlight position
@@ -156,7 +143,7 @@ public class Position extends JComponent {
             //g.setColor(Color.BLACK);
             //g.setFont(g.getFont().deriveFont(23f));
             //g.drawString(letters[posX], 65, 74);
-            g.setColor(Color.GREEN);
+            g.setColor(Tag.ColorChoice[colorSet][8]);
             g.setFont(g.getFont().deriveFont(20f));
             g.drawString(letters[posX], 65, 74);
         }
@@ -165,7 +152,7 @@ public class Position extends JComponent {
             //g.setColor(Color.BLACK);
             //g.setFont(g.getFont().deriveFont(23f));
             //g.drawString(numbers[7 - posY], 4, 22);
-            g.setColor(Color.GREEN);
+            g.setColor(Tag.ColorChoice[colorSet][8]);
             g.setFont(g.getFont().deriveFont(20f));
             g.drawString(numbers[7 - posY], 4, 22);
         }

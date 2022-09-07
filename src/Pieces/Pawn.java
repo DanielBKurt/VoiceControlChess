@@ -4,16 +4,16 @@ import java.util.ArrayList;
 
 import BoardComponents.Position;
 import Information.Tag;
-import Information.Tag.Color;
+import Information.Tag.Side;
 
 public class Pawn extends Piece {
     private int up;
     private boolean moved;
     
-    public Pawn(Color side, Position start, String imageFileName) {
+    public Pawn(Side side, Position start, String imageFileName) {
         super(side, start, imageFileName);
         moved = false;
-        if(this.getSide() == Tag.Color.BLACK) this.up = 1;
+        if(this.getSide() == Side.BLACK) this.up = 1;
         else this.up = -1;
     }
 

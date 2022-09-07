@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 
 import GUI.GameGUI;
 import Information.Tag;
-import Information.Tag.Color;
+import Information.Tag.Side;
 import Pieces.Bishop;
 import Pieces.Knight;
 import Pieces.Piece;
@@ -23,20 +23,22 @@ import Pieces.Rook;
 //this class is similar to Board except it has a 1x4 board instead of 8x8, used to display and select the piece to upgrade a pawn to
 public class Promotion extends JPanel implements MouseListener {
     private Board currentBoard;
+    private int colorSet;
     private static final Dimension FRA_DIMENSION = new Dimension((Tag.IMAGE_WIDTH + 10) * 10, (Tag.IMAGE_HEIGHT + 10) * 10);
     Position[][] pieces;
-    public Promotion(Tag.Color color, Board board)
+    public Promotion(Side side, Board board, int colorSet)
     {
         currentBoard = board;
         setLayout(new GridLayout(1, 4, 0, 0));
         this.setPanelDimensions(FRA_DIMENSION);
+        this.colorSet = colorSet;
         pieces = new Position[1][4];
         for (int i = 0; i < 4; i++)
         {
-            pieces[0][i] = new Position(i, 0, false, true);
+            pieces[0][i] = new Position(i, 0, false, true, colorSet);
             this.add(pieces[0][i]);
         }
-        if (color == Tag.Color.WHITE)
+        if (side == Side.WHITE)
             initializeWhite();
         else
             initializeBlack();
@@ -45,18 +47,18 @@ public class Promotion extends JPanel implements MouseListener {
 
     private void initializeWhite()
     {
-        pieces[0][0].setPiece(new Queen(Tag.Color.WHITE, pieces[0][0], Tag.WHITE_QUEEN));
-        pieces[0][1].setPiece(new Rook(Tag.Color.WHITE, pieces[0][1], Tag.WHITE_ROOK));
-        pieces[0][2].setPiece(new Knight(Tag.Color.WHITE, pieces[0][2], Tag.WHITE_KNIGHT));
-        pieces[0][3].setPiece(new Bishop(Tag.Color.WHITE, pieces[0][3], Tag.WHITE_BISHOP));
+        pieces[0][0].setPiece(new Queen(Side.WHITE, pieces[0][0], Tag.WHITE_QUEEN));
+        pieces[0][1].setPiece(new Rook(Side.WHITE, pieces[0][1], Tag.WHITE_ROOK));
+        pieces[0][2].setPiece(new Knight(Side.WHITE, pieces[0][2], Tag.WHITE_KNIGHT));
+        pieces[0][3].setPiece(new Bishop(Side.WHITE, pieces[0][3], Tag.WHITE_BISHOP));
     }
 
     private void initializeBlack()
     {
-        pieces[0][0].setPiece(new Queen(Tag.Color.BLACK, pieces[0][0], Tag.BLACK_QUEEN));
-        pieces[0][1].setPiece(new Rook(Tag.Color.BLACK, pieces[0][1], Tag.BLACK_ROOK));
-        pieces[0][2].setPiece(new Knight(Tag.Color.BLACK, pieces[0][2], Tag.BLACK_KNIGHT));
-        pieces[0][3].setPiece(new Bishop(Tag.Color.BLACK, pieces[0][3], Tag.BLACK_BISHOP));
+        pieces[0][0].setPiece(new Queen(Side.BLACK, pieces[0][0], Tag.BLACK_QUEEN));
+        pieces[0][1].setPiece(new Rook(Side.BLACK, pieces[0][1], Tag.BLACK_ROOK));
+        pieces[0][2].setPiece(new Knight(Side.BLACK, pieces[0][2], Tag.BLACK_KNIGHT));
+        pieces[0][3].setPiece(new Bishop(Side.BLACK, pieces[0][3], Tag.BLACK_BISHOP));
     }
 
     private void setPanelDimensions(Dimension size){

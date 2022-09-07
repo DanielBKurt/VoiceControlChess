@@ -70,9 +70,9 @@ public class MainGUI implements Runnable {
     }
 
     private void addGameTitle() {
-        final JLabel gameTitlLabel = new JLabel(Tag.TITLE);
+        final JLabel gameTitleLabel = new JLabel(Tag.TITLE);
         mainGUIComponents.add(Box.createVerticalStrut(VERTICAL_SPACE), BorderLayout.NORTH);
-        mainGUIComponents.add(gameTitlLabel);
+        mainGUIComponents.add(gameTitleLabel);
         mainGUIComponents.add(Box.createVerticalStrut(VERTICAL_SPACE));
     }
 
@@ -81,12 +81,12 @@ public class MainGUI implements Runnable {
         final JLabel blackIcon = new JLabel(new ImageIcon((Tag.BLACK_KING)));
         // create new panel for player one
         whitePlayerPanel = new JPanel();
-        mainGUIComponents.add(whitePlayerPanel);
         whitePlayerPanel.add(whiteIcon);
+        mainGUIComponents.add(whitePlayerPanel);
         // create new panel for player two
         blackPlayerPanel = new JPanel();
-        mainGUIComponents.add(blackPlayerPanel, BorderLayout.EAST);
         blackPlayerPanel.add(blackIcon); 
+        mainGUIComponents.add(blackPlayerPanel, BorderLayout.EAST);
     }
 
     private void addPlayerTextField() {
@@ -128,8 +128,7 @@ public class MainGUI implements Runnable {
     }
 
     private void playItemActionPerformed(ActionEvent e) {
-        System.out.println("Creating new game");
-        new GameGUI(this, speech, whitePlayerTextField.getText(), blackPlayerTextField.getText());
+        new GameGUI(this, speech, whitePlayerTextField.getText(), blackPlayerTextField.getText(), 0);
         mainGUI.setVisible(false);
     }
 
@@ -141,7 +140,7 @@ public class MainGUI implements Runnable {
                 //System.out.println("Saved game: " + savedGame);
                 String[] pieces = savedGame.split(" "); //list of words separated by spaces
                 myReader.close();
-                new GameGUI(this, pieces, speech, pieces[0], pieces[1]);
+                new GameGUI(this, pieces, speech, pieces[0], pieces[1], Integer.valueOf(pieces[2]));
                 mainGUI.setVisible(false);
             
           } catch (FileNotFoundException error) {
