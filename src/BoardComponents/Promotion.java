@@ -1,37 +1,36 @@
 package BoardComponents;
 
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
-import java.lang.Math;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JFrame;
 
-import GUI.GameGUI;
 import Information.Tag;
 import Information.Tag.Side;
 import Pieces.Bishop;
 import Pieces.Knight;
-import Pieces.Piece;
 import Pieces.Queen;
 import Pieces.Rook;
 
 //this class is similar to Board except it has a 1x4 board instead of 8x8, used to display and select the piece to upgrade a pawn to
 public class Promotion extends JPanel implements MouseListener {
     private Board currentBoard;
-    private int colorSet;
+    private JFrame frame;
     private static final Dimension FRA_DIMENSION = new Dimension((Tag.IMAGE_WIDTH + 10) * 10, (Tag.IMAGE_HEIGHT + 10) * 10);
     Position[][] pieces;
-    public Promotion(Side side, Board board, int colorSet)
+    public Promotion(Side side, Board board, String playerName, int colorSet)
     {
         currentBoard = board;
         setLayout(new GridLayout(1, 4, 0, 0));
         this.setPanelDimensions(FRA_DIMENSION);
-        this.colorSet = colorSet;
         pieces = new Position[1][4];
         for (int i = 0; i < 4; i++)
         {
@@ -43,6 +42,27 @@ public class Promotion extends JPanel implements MouseListener {
         else
             initializeBlack();
         this.addMouseListener(this);
+        frame = new JFrame("Promotion");
+        JPanel panel = new JPanel();
+        panel.setBackground(Tag.ColorChoice[colorSet][0]);
+        JLabel instructions = new JLabel(playerName + ", please select a piece your pawn to promote to");
+        instructions.setForeground(Tag.ColorChoice[colorSet][9]);
+        panel.add(instructions);
+        frame.add(panel, BorderLayout.NORTH);
+        frame.add(this, BorderLayout.CENTER);
+        frame.setSize(400, 150);
+        frame.setResizable(false);
+        frame.setLocationRelativeTo(null);
+        //have to handle promotion jframe getting closed, if it is closed without selecting piece the game is permanently paused
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                currentBoard.promote("(Q)"); //default to queen if window is closed
+                frame.dispose();
+            }
+        });
+        frame.setVisible(true);
+
     }
 
     private void initializeWhite()
@@ -74,11 +94,20 @@ public class Promotion extends JPanel implements MouseListener {
     public void mouseClicked(MouseEvent e) {        
         Position clickedPosition = (Position) this.getComponentAt(new Point(e.getX(), e.getY()));
         if (clickedPosition.getPiece() != null)
+        {
             currentBoard.promote(clickedPosition.getPiece().name());
+            closePromotion();
+        }
+    }
+    
+    //public so that it can be called and frame is closed in case user tries to save before selecting promotion piece
+    public void closePromotion()
+    {
+        frame.dispose();
     }
 
     /**
-     * since the board implements MouseListner, 
+     * since the promotion implements MouseListner, 
      * the following methods have to be overridden. 
      * currently left empty as they are not needed
      */

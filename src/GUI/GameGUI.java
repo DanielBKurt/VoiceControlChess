@@ -1,10 +1,7 @@
 package GUI;
 
-import java.util.List;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -19,9 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 
-import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 
 import BoardComponents.Board;
 import BoardComponents.Promotion;
@@ -230,6 +225,13 @@ public class GameGUI {
         }
     }
 
+    //board does not need to keep track of player names except when calling promotion, instead of adding even more parameters to board constructors to save names for this specifc case, this method takes a side and returns the corresponding name
+    public String getTurnPlayerName(Side side)
+    {
+        return (side == Side.WHITE ? playerOneName : playerTwoName);
+    }
+
+    //following methods are used to add/change text above and below board
     public void updateSpeechOutput(String speech)
     {
         String replace;
@@ -256,10 +258,10 @@ public class GameGUI {
     }
 
     //call after every turn change
-    public void updateCurrentTurn(Side color)
+    public void updateCurrentTurn(Side side)
     {
         String replace = "Current turn: ";
-        if (color == Side.WHITE)
+        if (side == Side.WHITE)
             replace += playerOneName;
         else //black
             replace += playerTwoName;
@@ -280,42 +282,5 @@ public class GameGUI {
             currentTurn.replaceRange("Winner: " + playerOneName, 0, currentTurn.getText().length());
         else
             currentTurn.replaceRange("Winner: " + playerTwoName, 0, currentTurn.getText().length());
-    }
-
-    public void promotionPopUp(Side side)
-    {
-        Promotion promGUI = new Promotion(side, this.boardGUI, this.colorSet);
-        promo = new JFrame("Promotion");
-        JPanel panel = new JPanel();
-        panel.setBackground(Tag.ColorChoice[colorSet][0]);
-        String promoter = (side == Side.WHITE) ? playerOneName : playerTwoName;
-        JLabel temp = new JLabel(promoter + ", please select a piece your pawn to promote to");
-        temp.setForeground(Tag.ColorChoice[colorSet][9]);
-        panel.add(temp);
-        promo.add(panel, BorderLayout.NORTH);
-        promo.getContentPane().setBackground(Tag.ColorChoice[colorSet][0]);
-        promo.add(promGUI, BorderLayout.CENTER);
-        promo.setSize(400, 150);
-        promo.setResizable(false);
-        promo.setLocationRelativeTo(null);
-        //have to handle promotion jframe getting closed, if it is closed without selecting piece the game is permanently paused
-        promo.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                boardGUI.promote("(Q)"); //default to queen if window is closed
-                promo.dispose();
-            }
-        });
-        promo.setVisible(true);
-        System.out.println("Width: " + promo.getWidth() + "Height: " + promo.getHeight());
-    }
-
-    public void disposePromo()
-    {
-        if (promo != null)
-        {
-            promo.setVisible(false);
-            promo.dispose();
-        }
     }
 }

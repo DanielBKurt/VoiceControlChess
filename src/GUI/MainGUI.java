@@ -4,12 +4,9 @@ import java.awt.Font;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,10 +14,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JRadioButton;
 import javax.swing.SwingUtilities;
-
-import java.util.List;
-import java.util.Arrays;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -127,10 +122,12 @@ public class MainGUI implements Runnable {
         buttonWrapper.setPreferredSize(new Dimension(600, 120));
         final JButton play = new JButton("Play");
         final JButton load = new JButton("Load");
+        final JButton settings = new JButton("Settings");
         final JButton help = new JButton("Help");
         final JButton quit = new JButton("Quit");
         play.setBackground(Tag.ColorChoice[1][7]);
         load.setBackground(Tag.ColorChoice[1][7]);
+        settings.setBackground(Tag.ColorChoice[1][7]);
         help.setBackground(Tag.ColorChoice[1][7]);
         quit.setBackground(Tag.ColorChoice[1][7]);
         play.addActionListener(e -> playItemActionPerformed(e));

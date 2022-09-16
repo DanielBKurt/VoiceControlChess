@@ -32,6 +32,7 @@ public class Board extends JPanel implements MouseListener {
     private Side turn;
     private GameGUI gameGUI;
     private Position[][] gameBoard;
+    private Promotion promo;
 
     private Piece selectedPiece;
     private Piece enPassantPawn;
@@ -69,22 +70,13 @@ public class Board extends JPanel implements MouseListener {
             this.setTurn(Side.BLACK);
         this.setGameBoard(new Position[Tag.SIZE_MAX][Tag.SIZE_MAX]);
         setLayout(new GridLayout(Tag.SIZE_MAX, Tag.SIZE_MAX, 0, 0));
-        System.out.println("Set layout");
         createNewBoardPositions();
-        System.out.println("Created board positions");
         initializePiecesToBoard(pieces, tester);
-        System.out.println("Black: " + bKing.getPosition().getPosY() + ", " + bKing.getPosition().getPosX());
-        System.out.println("White: " + wKing.getPosition().getPosY() + ", " + wKing.getPosition().getPosX());
-        if (this.turn == Side.WHITE)
-            System.out.println("White turn constructor");
-        else
-            System.out.println("Black turn constructor");
     }
 
     public Board(GameGUI gui, String[] pieces)
     {
         this(pieces, false);
-        System.out.println("Through copy constructor");
         this.setGameGUI(gui);
         this.addMouseListener(this);
         this.setPanelDimensions(FRA_DIMENSION);
@@ -148,12 +140,10 @@ public class Board extends JPanel implements MouseListener {
         for (int i = (tester) ? 2 : 4; i < pieces.length - 1; i++) //0 and 1 are player names, 2 is turn, last spot is en passant
         {
             String current = pieces[i];
-            System.out.println(current);
             int y = current.charAt(4) - '0';
             int x = current.charAt(5) - '0';
             if (current.charAt(3) == 'b') //black
             {
-                System.out.println("adding black " + current.charAt(1));
                 if (current.charAt(1) == 'K') //king
                 {
                     gameBoard[y][x].setPiece(new King(Side.BLACK, gameBoard[y][x], Tag.BLACK_KING));
@@ -182,7 +172,6 @@ public class Board extends JPanel implements MouseListener {
             }
             else //white
             {
-                System.out.println("adding white " + current.charAt(1));
                 if (current.charAt(1) == 'K') //king
                 {
                     gameBoard[y][x].setPiece(new King(Side.WHITE, gameBoard[y][x], Tag.WHITE_KING));
@@ -224,7 +213,7 @@ public class Board extends JPanel implements MouseListener {
             else //y == 4
                 gameBoard[5][x].setEnPassant(true);
         }
-        terminalPrint();
+        //terminalPrint();
     }
     
     private void setPanelDimensions(Dimension size){
@@ -280,16 +269,29 @@ public class Board extends JPanel implements MouseListener {
             {
                 if (!gameBoard[y][x].isFree())
                 {
-                    save += " " + gameBoard[y][x].getPiece().name();
-                    if (gameBoard[y][x].getPiece().getSide() == Side.WHITE)
-                        save += "w";
-                    else
-                        save += "b";
-                    save += String.valueOf(y) + String.valueOf(x);
-                    if (gameBoard[y][x].getPiece().getMoved())
-                        save += "t";
-                    else
+                    if (promotionPiece != null && gameBoard[y][x].getPiece() == promotionPiece)
+                    {
+                        save += " (Q)";
+                        if (gameBoard[y][x].getPiece().getSide() == Side.WHITE)
+                            save += "w";
+                        else
+                            save += "b";
                         save += "f";
+                        clearPromotion();
+                    }
+                    else
+                    {
+                        save += " " + gameBoard[y][x].getPiece().name();
+                        if (gameBoard[y][x].getPiece().getSide() == Side.WHITE)
+                            save += "w";
+                        else
+                            save += "b";
+                        save += String.valueOf(y) + String.valueOf(x);
+                        if (gameBoard[y][x].getPiece().getMoved())
+                            save += "t";
+                        else
+                            save += "f";
+                    }
                 }
             }
         }
@@ -312,6 +314,7 @@ public class Board extends JPanel implements MouseListener {
         repaint();
     }
 
+    //called after turn is switched, sees if previous move from other player moved current player into check and highlights/outputs message accordingly
     public void checkHighlight()
     {
         if (turn == Side.WHITE)
@@ -389,6 +392,14 @@ public class Board extends JPanel implements MouseListener {
         enPassantPawn = piece;
     }
 
+    private void clearPromotion()
+    {
+        if (promo != null)
+            promo.closePromotion();
+        promo = null;
+        promotionPiece = null;
+    }
+
     private void castle(Piece piece)
     {
         int y = piece.getPosition().getPosY(); //get y coord from king
@@ -412,7 +423,7 @@ public class Board extends JPanel implements MouseListener {
             Side side = promotionPiece.getSide();
             Position temp = promotionPiece.getPosition();
             temp.removePiece();
-            promotionPiece = null;
+            clearPromotion();
             if (name.equals("(Q)"))
             {
                 if (side == Side.BLACK)
@@ -445,22 +456,14 @@ public class Board extends JPanel implements MouseListener {
             repaint();
             checkHighlight();
         }
-        else
-            System.out.println("null");
         deselectPiece();
-        promotionPiece = null;
-        gameGUI.disposePromo();
     }
 
+    //mouseClicked and speechCalled convert click or speech to piece selection and then call attemptMove()
     @Override
-    public void mouseClicked(MouseEvent e) {     
-        System.out.println("clicked");
+    public void mouseClicked(MouseEvent e) {
         gameGUI.clearSpeechOutput(); //dont leave output up if user decides to use mouse instead   
         Position clickedPosition = (Position) this.getComponentAt(new Point(e.getX(), e.getY()));
-        if (clickedPosition.isFree())
-            System.out.println("clicked empty square");
-        else
-            System.out.println("Clicked on: " + clickedPosition.getPiece().name());
         if(e.getButton() == MouseEvent.BUTTON1 && selectedPiece == null) 
         {
             if(!clickedPosition.isFree() && clickedPosition.getPiece().getSide() == turn)
@@ -475,7 +478,7 @@ public class Board extends JPanel implements MouseListener {
             }
         } 
         else if (e.getButton() == MouseEvent.BUTTON1 && selectedPiece != null) 
-            mover(clickedPosition);
+            attemptMove(clickedPosition);
         else
             deselectPiece();
         repaint();
@@ -489,12 +492,8 @@ public class Board extends JPanel implements MouseListener {
     		deselectPiece();
     		return;
     	}
-    	else if (speechReceived.equals("<unk>"))
-    	{
-    		//<unk> means recognizer did not understand speech
-    		System.out.println("I did not understand what you said");
-    		return;
-    	}
+    	else if (speechReceived.equals("<unk>")) //<unk> means recognizer did not understand speech, will tell user using boardGUI
+            return;
     	String[] coordinates = speechReceived.split(" ");
         if (coordinates.length == 1)
         {
@@ -534,20 +533,22 @@ public class Board extends JPanel implements MouseListener {
             }
         } 
         else if (selectedPiece != null)
-            mover(spokenPosition);
+            attemptMove(spokenPosition);
         else
             deselectPiece();
         repaint();
     }
 
-    public void mover(Position chosen)
+    //helper method for speechCalled and mouseClicked, selectedPiece is class variable to it tries to move selectedPiece to passed in position
+    public void attemptMove(Position chosen)
     {
-        if(chosen.isFree() || chosen.getPiece().getSide() != turn) 
+        if(chosen.isFree() || chosen.getPiece().getSide() != turn)
         {
             if(selectedMovablePositions.contains(chosen)) 
             {
                 boolean couldMove = true;
-                //en passant and castling are based on distance moved so they must be checked before piece is moved
+                //following checks are for unique rules with pawn and king
+                //en passant and castling are based on distance moved so they must be checked before piece is moved (2 vs 1 square moved)
                 //move is within if statements because I need to check for castling (based on king before move), then move king, then call castle (based on king position after move)
                 if (selectedPiece.name().equals("(P)")) //check for en passant
                 {
@@ -555,11 +556,11 @@ public class Board extends JPanel implements MouseListener {
                         setEnPassant(selectedPiece);
                     else if (gameBoard[chosen.getPosY()][chosen.getPosX()].getEnPassant()) //not moving forward 2, check if attempting en passant
                     {
-                        Position enPassantedPawn = enPassantPawn.getPosition(); //save position so that it can later be removed
+                        Position enPassantedPawn = enPassantPawn.getPosition(); //save position so that it can removed after en passant is cleared
                         clearEnPassant();
                         enPassantedPawn.removePiece();
                     }
-                    if (moveValid(selectedPiece, chosen)) //outside of inner if else if because it may be pawn but not using en passant
+                    if (moveLegal(selectedPiece, chosen)) //outside of inner if else if because it may be pawn but not using en passant
                         moveAndUnhighlight(chosen);
                     else
                         couldMove = false;
@@ -568,17 +569,17 @@ public class Board extends JPanel implements MouseListener {
                 {
                     if (Math.abs(selectedPiece.getPosition().getPosX() - chosen.getPosX()) == 2)
                     {
-                        //selectedPiece.move(chosen);
-                        if (moveValid(selectedPiece, chosen))
-                            moveAndUnhighlight(chosen);
+                        if (moveLegal(selectedPiece, chosen))
+                        {
+                            moveAndUnhighlight(chosen); //need to move before calling castle, rook moves to new castled location based on kings new position
+                            castle(selectedPiece);
+                        }
                         else
                             couldMove = false;
-                        //selectedPiece.move(chosen); //must move before calling castle as, unlike en passant, castle relies on kings new position (left or right)
-                        castle(selectedPiece);
                     }
                     else //selected is king, not moving into castling position
                     {
-                        if (moveValid(selectedPiece, chosen))
+                        if (moveLegal(selectedPiece, chosen))
                             moveAndUnhighlight(chosen);
                         else
                             couldMove = false;
@@ -586,18 +587,18 @@ public class Board extends JPanel implements MouseListener {
                 }
                 else //default, not pawn or king
                 {
-                    if (moveValid(selectedPiece, chosen))
+                    if (moveLegal(selectedPiece, chosen))
                         moveAndUnhighlight(chosen);
                     else
                         couldMove = false;
                 }
-                //pawn can take and then be promoted so promotion check comes after move
+                //pawn can take and then be promoted so promotion check comes after move, above check was for en passasnt, below check is for promotion
                 if (selectedPiece.name().equals("(P)") && (selectedPiece.getPosition().getPosY() == 7 || selectedPiece.getPosition().getPosY() == 0))
                 {
                     promotionPiece = selectedPiece;
                     deselectPiece();
                     turn = Side.PAUSE; //manually pause until promotion is done
-                    gameGUI.promotionPopUp(promotionPiece.getSide());
+                    promo = new Promotion(promotionPiece.getSide(), this, gameGUI.getTurnPlayerName(promotionPiece.getSide()), this.colorSet);
                 }
                 if (couldMove) //dont unselect and switch turns unless move is actually made
                 {
@@ -606,20 +607,42 @@ public class Board extends JPanel implements MouseListener {
                 }
                 else //could not move, either tried to move yourself out of check or already in check and move did not escape it
                 {
-                    if (bKing.getPosition().isCheck() || wKing.getPosition().isCheck()) //already in check
+                    if (bKing.getPosition().isCheck() || wKing.getPosition().isCheck()) //other players last turn placed them in check, square is already red under king
                         gameGUI.updateInvalidMove("Must escape check");
                     else //moved yourself into check
                         gameGUI.updateInvalidMove("Can not move yourself into check");
                 }
             }
-            else
+            else //not in movable positions but either free or taken by enemy piece, selected piece can not move to that position due to its movement limitations (like rook along diagonal or pawn 3 sqaures forward)
                 gameGUI.updateInvalidMove("Invalid move for piece");
         }
-        else
+        else //chosen is not free, occupied by same sided piece
             gameGUI.updateInvalidMove("Can not attack own piece");
     }
 
-    //helper method that unhighlights positions
+    //called using actual board, creates copy of board without GUI to make sure move is legal before doing it, returns false if player moves themself into check/checkmate
+    public boolean moveLegal(Piece selected, Position chosen)
+    {
+        //using ints of positions as positions themselves are tied to this board and tester is a copy with separate positions
+        int selectedY = selected.getPosition().getPosY();
+        int selectedX = selected.getPosition().getPosX();
+        int chosenY = chosen.getPosY();
+        int chosenX = chosen.getPosX();
+        Board tester = new Board(this.asString().split(" "), true);
+        //seperation with if else and print statement is helpful for debug so I'm leaving it but commmenting it out
+        if (!tester.testCheck(selectedY, selectedX, chosenY, chosenX))
+        {
+            //System.out.println("Legal move");
+            return true;
+        }
+        else
+        {
+            //System.out.println("Illegal move");
+            return false;
+        }
+    }
+
+    //helper method that unhighlights squares and then moves pieces, called after ensuring move is legal and looking for special cases
     public void moveAndUnhighlight(Position chosen)
     {
         selectedPiece.getPosition().setSelect(false);
@@ -629,33 +652,12 @@ public class Board extends JPanel implements MouseListener {
         saved = false;
     }
 
-    //called using actual board, creates copy of board without GUI to make sure move is legal before doing it
-    public boolean moveValid(Piece selected, Position chosen)
-    {
-        //using ints of positions as positions themselves are tied to this board and tester is a copy with separate positions
-        int selectedY = selected.getPosition().getPosY();
-        int selectedX = selected.getPosition().getPosX();
-        int chosenY = chosen.getPosY();
-        int chosenX = chosen.getPosX();
-        Board tester = new Board(this.asString().split(" "), true);
-        if (!tester.testCheck(selectedY, selectedX, chosenY, chosenX))
-        {
-            System.out.println("Legal move");
-            return true;
-        }
-        else
-        {
-            System.out.println("Illegal move");
-            return false;
-        }
-    }
-
-    //called with copy of board, moves piece on copy, returns true if player moved themself into check
+    //called with copy of board, moves piece on copy, returns true if player moved themself into check, moves piece at selectedYX to chosenYX and sees if king can be taken
     //if false, move is legal so it is made on actual board
     public boolean testCheck(int selectedY, int selectedX, int chosenY, int chosenX)
     {
         gameBoard[selectedY][selectedX].getPiece().move(gameBoard[chosenY][chosenX]);
-        terminalPrint();
+        //terminalPrint();
         if (turn == Side.WHITE) //white moved, turn has not yet been reassigned, make sure white did not move themself into check
             return (canBeTaken(Side.BLACK, wKing.getPosition()).size() != 0); //zero if nothing can attack king
         else //black
@@ -774,7 +776,7 @@ public class Board extends JPanel implements MouseListener {
                 break; //piece will block initial from other pieces further along that line, regardless of type or side of piece
             }
         }
-        return null;
+        return null; //no piece on this line can take given position
     }
 
     //when turn is swapped, it checks if the current turn player was placed in check after the last move
@@ -790,22 +792,21 @@ public class Board extends JPanel implements MouseListener {
         List<Position> kingMoves = king.getLegalMoves(this.gameBoard); //all possible king moves
         for (int i = 0; i < kingMoves.size(); i++)
         {
-            System.out.println("Trying king move: " + i);
-            if (moveValid(king, kingMoves.get(i)))
+            if (moveLegal(king, kingMoves.get(i))) //if there is a single move that is legal, it is not checkmate
                 return false;
         }
         //can't move king, try taking
         if (pieces.size() > 1) //can't take or block more than one piece per turn, if moving king does not work and there are multiple pieces checking, it is checkmate
             return true;
-        Piece checkingPiece = pieces.get(0);
-        List<Piece> takeCheckingPiece = canBeTaken(side, checkingPiece.getPosition());
+        Piece checkingPiece = pieces.get(0); //there is only one piece checking king (if statement would return if size > 1) so .get(0) is only checking piece
+        List<Piece> takeCheckingPiece = canBeTaken(side, checkingPiece.getPosition()); //what friendly pieces can take checking piece
         for (int i = 0; i < takeCheckingPiece.size(); i++)
         {
-            if (moveValid(takeCheckingPiece.get(i), checkingPiece.getPosition()))
+            if (moveLegal(takeCheckingPiece.get(i), checkingPiece.getPosition())) //if there is a single way to take the checking piece legally, it is not checkmate
                 return false;
         }
         //cannot move king or take checking piece, try blocking piece
-        if (checkingPiece.name().equals("N")) //cannot block knight
+        if (checkingPiece.name().equals("(N)")) //cannot block knight
             return true;
         int xShift = 0; //default to 0, assign as positive or negative one if x or y changes
         int yShift = 0;
@@ -826,7 +827,7 @@ public class Board extends JPanel implements MouseListener {
             List<Piece> blockable = canBeTaken(side, gameBoard[y][x]);
             for (int i = 0; i < blockable.size(); i++)
             {
-                if (moveValid(blockable.get(i), gameBoard[y][x]))
+                if (moveLegal(blockable.get(i), gameBoard[y][x])) //if there is a single way to block checking piece legally, it is not checkmate
                     return false;
             }
             y += yShift;
