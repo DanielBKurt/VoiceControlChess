@@ -18,6 +18,7 @@ public class Position extends JComponent {
     private int posX;
     private int posY;
     private int colorSet;
+    private int fontSize;
     private Piece piece;
     private boolean highLight;
     private boolean ligherShade;
@@ -26,11 +27,10 @@ public class Position extends JComponent {
     private boolean check;
     private boolean checkmate;
     private boolean enPassant; //this position can be taken with en passant
-    private boolean promotion; //prevent labels from showing up on promotion jframe
     private String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H"};
     private String[] numbers = {"1", "2", "3", "4", "5", "6", "7", "8"};
 
-    public Position(int x, int y, boolean light, boolean promotion, int colorSet) {
+    public Position(int x, int y, boolean light, int fontSize, int colorSet) {
         setPosX(x);
         setPosY(y);
         this.colorSet = colorSet;
@@ -41,7 +41,7 @@ public class Position extends JComponent {
         setCheck(false);
         this.setBorder(BorderFactory.createEmptyBorder());
         enPassant = false;
-        this.promotion = promotion;
+        this.fontSize = fontSize;
     }
 
     // getters
@@ -143,17 +143,23 @@ public class Position extends JComponent {
             //g.setFont(g.getFont().deriveFont(23f));
             //g.drawString(letters[posX], 65, 74);
             g.setColor(Tag.ColorChoice[colorSet][8]);
-            g.setFont(g.getFont().deriveFont(20f));
-            g.drawString(letters[posX], 65, 74);
+            g.setFont(g.getFont().deriveFont((float) fontSize));
+            if (fontSize == 20)
+                g.drawString(letters[posX], 65, 74);
+            else
+                g.drawString(letters[posX], 15, 21);
         }
-        if (this.posX == 0 && !promotion)
+        if (this.posX == 0)
         {
             //g.setColor(Color.BLACK);
             //g.setFont(g.getFont().deriveFont(23f));
             //g.drawString(numbers[7 - posY], 4, 22);
             g.setColor(Tag.ColorChoice[colorSet][8]);
-            g.setFont(g.getFont().deriveFont(20f));
-            g.drawString(numbers[7 - posY], 4, 22);
+            g.setFont(g.getFont().deriveFont((float) fontSize));
+            if (fontSize == 20)
+                g.drawString(numbers[7 - posY], 4, 22);
+            else
+                g.drawString(numbers[7 - posY], 1, 10);
         }
     }
 }

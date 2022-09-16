@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.Font;
 
 import javax.swing.ImageIcon;
@@ -13,13 +11,11 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JLabel;
 import javax.swing.JTextArea;
 
 import java.io.FileWriter;
 
 import BoardComponents.Board;
-import BoardComponents.Promotion;
 import Information.Tag;
 import Information.Tag.Side;
 import SpeechRecognizer.SpeechRecognizerMain;
@@ -31,7 +27,6 @@ public class GameGUI {
     private JTextArea speechOutput;
     private JTextArea currentTurn;
     private JFrame gameGUI;
-    private JFrame promo;
     private Board boardGUI;
     private MainGUI main;
     private SpeechRecognizerMain speech;

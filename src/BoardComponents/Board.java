@@ -92,10 +92,10 @@ public class Board extends JPanel implements MouseListener {
         for(int i = 0; i < Tag.SIZE_MAX; i++) {
             for(int j = 0; j < Tag.SIZE_MAX; j++){
                 if(((i % 2) == 0 && (j % 2) == 0) || ((i % 2) == 1 && (j % 2) == 1)) {
-                    this.gameBoard[i][j] = new Position(j, i, false, false, colorSet);
+                    this.gameBoard[i][j] = new Position(j, i, false, 20, colorSet);
                     this.add(gameBoard[i][j]);
                 } else {
-                    this.gameBoard[i][j] = new Position(j, i, true, false, colorSet);
+                    this.gameBoard[i][j] = new Position(j, i, true, 20, colorSet);
                     this.add(gameBoard[i][j]);
                 }
             }

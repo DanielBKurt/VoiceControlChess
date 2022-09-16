@@ -34,7 +34,7 @@ public class Promotion extends JPanel implements MouseListener {
         pieces = new Position[1][4];
         for (int i = 0; i < 4; i++)
         {
-            pieces[0][i] = new Position(i, 0, false, true, colorSet);
+            pieces[0][i] = new Position(i, 0, false, 0, colorSet);
             this.add(pieces[0][i]);
         }
         if (side == Side.WHITE)
