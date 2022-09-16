@@ -1,5 +1,6 @@
 package Pieces;
 
+import java.util.List;
 import java.util.ArrayList;
 
 import BoardComponents.Position;
@@ -11,8 +12,8 @@ public class Queen extends Piece {
     }
 
     @Override
-    public ArrayList<Position> getLegalMoves(Position[][] gameBoard) {
-        ArrayList<Position> queenLegalMoves = new ArrayList<Position>();
+    public List<Position> getLegalMoves(Position[][] gameBoard) {
+        List<Position> queenLegalMoves = new ArrayList<Position>();
         queenLegalMoves.addAll(getLegalLinearPositions(gameBoard, this.getPosition()));
         queenLegalMoves.addAll(getLegalDiagonalPositions(gameBoard, this.getPosition()));
         return queenLegalMoves;

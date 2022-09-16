@@ -5,7 +5,6 @@ import java.awt.Graphics;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 
 import Information.Tag;
 

@@ -454,8 +454,13 @@ public class Board extends JPanel implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {     
+        System.out.println("clicked");
         gameGUI.clearSpeechOutput(); //dont leave output up if user decides to use mouse instead   
         Position clickedPosition = (Position) this.getComponentAt(new Point(e.getX(), e.getY()));
+        if (clickedPosition.isFree())
+            System.out.println("clicked empty square");
+        else
+            System.out.println("Clicked on: " + clickedPosition.getPiece().name());
         if(e.getButton() == MouseEvent.BUTTON1 && selectedPiece == null) 
         {
             if(!clickedPosition.isFree() && clickedPosition.getPiece().getSide() == turn)

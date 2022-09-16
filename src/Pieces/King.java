@@ -1,5 +1,6 @@
 package Pieces;
 
+import java.util.List;
 import java.util.ArrayList;
 
 import BoardComponents.Position;
@@ -14,37 +15,24 @@ public class King extends Piece {
     }
 
     @Override
-    public ArrayList<Position> getLegalMoves(Position[][] gameBoard) {
-        ArrayList<Position> kingLegalMoves = new ArrayList<Position>();
-        final int start[] = {this.getPosition().getPosY(), this.getPosition().getPosX()};
-        final int translation[] = { start[0] + 1, start[0] - 1, start[1] + 1, start[1] - 1 };
-
-        // check up down
-        for(int i = 0; i < 2; i++) {
-            if(basicLegalPosition(gameBoard, start[0], translation[i + 2])) {
-                kingLegalMoves.add(gameBoard[start[0]][translation[i + 2]]);
-            }
+    public List<Position> getLegalMoves(Position[][] gameBoard) {
+        List<Position> kingLegalMoves = new ArrayList<Position>();
+        int[][] directions = {{1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1}, {-1, 1}, {-1, 0}, {-1, -1}}; //all 8 directions
+        for (int[] shift : directions)
+        {
+            int x = this.getPosition().getPosX() + shift[0];
+            int y = this.getPosition().getPosY() + shift[1];
+            if ((positionInBounds(x) && positionInBounds(y)) && basicLegalPosition(gameBoard, y, x))
+                kingLegalMoves.add(gameBoard[y][x]);
         }
-        // check left right
-        for(int i = 0; i < 2; i++) {
-            if(basicLegalPosition(gameBoard, translation[i], start[1])) {
-                kingLegalMoves.add(gameBoard[translation[i]][start[1]]);
-            }
-        }
-        // check diagonal
-        for(int i = 0; i < 2; i++) {
-            for(int j = 0; j < 2; j++) {
-                if(basicLegalPosition(gameBoard, translation[i], translation[j + 2])) {
-                    kingLegalMoves.add(gameBoard[translation[i]][translation[j + 2]]);
-                }
-            }
-        }
+        //check for castling
         if (!this.getMoved())
         {
-            if (legalCastling(gameBoard, start[0], 2))
-                kingLegalMoves.add(gameBoard[start[0]][2]);
-            if (legalCastling(gameBoard, start[0], 6))
-                kingLegalMoves.add(gameBoard[start[0]][6]);
+            int y = this.getPosition().getPosY();
+            if (legalCastling(gameBoard, y, 2))
+                kingLegalMoves.add(gameBoard[y][2]);
+            if (legalCastling(gameBoard, y, 6))
+                kingLegalMoves.add(gameBoard[y][6]);
         }
         return kingLegalMoves;
     }

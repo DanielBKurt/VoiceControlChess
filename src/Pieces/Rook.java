@@ -1,5 +1,6 @@
 package Pieces;
 
+import java.util.List;
 import java.util.ArrayList;
 
 import BoardComponents.Position;
@@ -14,8 +15,8 @@ public class Rook extends Piece {
     }
 
     @Override
-    public ArrayList<Position> getLegalMoves(Position[][] gameBoard) {
-        ArrayList<Position> rookLegalMoves = new ArrayList<Position>();
+    public List<Position> getLegalMoves(Position[][] gameBoard) {
+        List<Position> rookLegalMoves = new ArrayList<Position>();
         rookLegalMoves.addAll(getLegalLinearPositions(gameBoard, this.getPosition()));
         return rookLegalMoves;
     }
