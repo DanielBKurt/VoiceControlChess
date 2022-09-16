@@ -120,7 +120,7 @@ public class GameGUI {
         right.setPreferredSize(new Dimension(borderPanelSize, borderPanelSize));
         bottom.setPreferredSize(new Dimension(borderPanelSize, borderPanelSize));
         //add text output on bottom and top
-        this.currentTurn = new JTextArea("Current turn: " + playerOneName); //default to white turn
+        this.currentTurn = new JTextArea("Current turn: " + (boardGUI.getTurn() == Side.WHITE ? playerOneName : playerTwoName)); //default to white turn
         currentTurn.setFont(new Font("Monospaced", Font.BOLD, 20));
         currentTurn.setBackground(Tag.ColorChoice[colorSet][6]);
         currentTurn.setForeground(Tag.ColorChoice[colorSet][9]);
