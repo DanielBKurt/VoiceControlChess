@@ -67,12 +67,21 @@ public class Position extends JComponent {
     public void setDisplayPiece(boolean display) { this.displayPiece = display; }
     public void setEnPassant(boolean passant) { this.enPassant = passant; }
 
+
+    /***
+     * sets piece at this position and displays piece
+     * @param piece - piece being moved/set at this position
+     */
     public void setPiece(Piece piece) { 
         this.piece = piece;
         setDisplayPiece(true);
         piece.setPosition(this);
     }
 
+    /***
+     * removes piece from this position, when moving pieces, piece is removed from starting position and set at destination
+     * @return - piece formerly at this position
+     */
     public Piece removePiece() {
         Piece temp = this.piece;
         setDisplayPiece(false);
@@ -81,10 +90,13 @@ public class Position extends JComponent {
         return temp;
     }
 
-    //copied from stack exchange, used to merge color for selected piece background
-    //looks slightly different from unselected and unhighlighted squares
-    //if piece is selected that has no valid moves, UI shows nothing without selected color change, makes it confusing when computer mishears you
-    //https://stackoverflow.com/questions/19398238/how-to-mix-two-int-colors-correctly
+    /***
+     * used to blend selected and check colors with regular board background color, from https://stackoverflow.com/questions/19398238/how-to-mix-two-int-colors-correctly
+     * @param c1 - first color to mix
+     * @param c2 - second color to mix
+     * @param ratio - weighted percent of c2 in returned color
+     * @return - blended color based on above parameters
+     */
     public Color blend( Color c1, Color c2, float ratio ) {
         if ( ratio > 1f ) ratio = 1f;
         else if ( ratio < 0f ) ratio = 0f;
@@ -111,7 +123,6 @@ public class Position extends JComponent {
         return new Color( a << 24 | r << 16 | g << 8 | b );
     }
 
-     // method to draw position to screen and piece
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         // draw light or dark position
@@ -133,8 +144,8 @@ public class Position extends JComponent {
         if(highLight) this.setBorder(BorderFactory.createEtchedBorder(LIGHT_BORDER, DARK_BORDER));
         else this.setBorder(BorderFactory.createEmptyBorder());
 
-        // display piece if it is at current position
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        // display piece if it is at current position
         if(this.piece != null && displayPiece)
             piece.draw(g);
         if (this.posY == 7)
